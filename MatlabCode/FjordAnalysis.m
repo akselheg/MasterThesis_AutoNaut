@@ -40,8 +40,8 @@ for i = 1:4
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
         rmpath(path)
-        load('weatherData_2020-2-20_2020-2-20.mat')
-        load('currentweatherData_2020-2-20_2020-2-20.mat')
+        load('./Weather/weatherData_2020-2-20_2020-2-20.mat')
+        load('./Weather/currentweatherData_2020-2-20_2020-2-20.mat')
         disp('Done loading data')
     end
     if i == 2
@@ -54,7 +54,7 @@ for i = 1:4
         disp('Done loading data')
     end
     if i == 3
-        path = './Trondheum094058/';avrager
+        path = './Trondheim094058/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
@@ -63,7 +63,7 @@ for i = 1:4
         disp('Done loading data')
     end
     if i == 4
-        path = './Trondheum101916/';
+        path = './Trondheim101916/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');

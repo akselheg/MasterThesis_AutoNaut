@@ -37,8 +37,8 @@ gpsFix = load('GpsFix.mat');
 RelativeWind = load('RelativeWind.mat');
 EulerAngles = load('EulerAngles.mat');
 rmpath(path)
-load('weatherData_2020-5-28_2020-5-28.mat')
-load('currentweatherData_2020-5-28_2020-5-29.mat')
+load('./Weather/weatherData_2020-5-28_2020-5-28.mat')
+load('./Weather/currentweatherData_2020-5-28_2020-5-29.mat')
 disp('Done loading data')
 
 
