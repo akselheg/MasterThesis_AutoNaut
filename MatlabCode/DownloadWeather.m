@@ -1,11 +1,10 @@
 
+clc;clearvars;
+[lat lon] = TryDownloadWeather(1,1,1,1,1,1);
 
-a = TryDownloadWeather(1,1,1,1,1,1)
-
-
-function wind = TryDownloadWeather(x0,y0,x1,y1, day,time)
-    wind = 1;
-    waveData = "https://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800"+ ch +"hf/mywavewam800_" + place +".an." + string(numberPreviousDate) + "18.nc";
-    waveInfo = ncinfo(waveData);    
-    latitudeMapWave = ncread(waveData,'latitude');
+function [lat lon] = TryDownloadWeather(x0,y0,x1,y1, day,time)
+    waveData = "https://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800vhf/mywavewam800_vestlandet.an.2019052818.nc";
+    %waveInfo = ncinfo(waveData);    
+    lat = ncread(waveData,'latitude');
+    lon = ncread(waveData,'longitude');
 end
