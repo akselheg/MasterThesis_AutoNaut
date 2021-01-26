@@ -264,349 +264,364 @@ Mdl2 = fitrgp(X(:,1:end-1), Y2);
 %       'FitMethod','exact','PredictMethod','exact', 'KernelFunction', 'matern52');
 
 %%
-diff1 = [];
-sog_MSE = 0;
-output = [];
-
-for i = 1:length(test_sog_data)
-    out = w1'*X_test(i, :)';
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-sog_summ1 = 0;
-sog_summ2 = 0;
-sog_summ3 = 0;
-for i = 1:length(test_sog_data)
-    out = w1'*X_test(i, :)';
-    sog_summ1 = sog_summ1 + (out-mean_output)*(test_sog_data(i) - mean(test_sog_data));
-    sog_summ2 = sog_summ2 + (out-mean_output)^2;
-    sog_summ3 = sog_summ3 + (test_sog_data(i) - mean(test_sog_data))^2;
-    diff1 = cat(1,diff1, out - test_sog_data(i));
-    sog_MSE = sog_MSE + (test_sog_data(i) - out)^2;
-end
-sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
-sog_RMSE = sqrt(sog_MSE/length(test_sog_data));
-figure;
-scatter(linspace(1,1,length(diff1)),diff1)
-hold on
-boxplot(diff1)
-title 'Error between guessed Vg and actual Vg'
-hold off
+PlotLinear(test_sog_data, w1,X_test,'Vg')
 %%
-figure;
-scatter(test_sog_data, output) 
-hold on
-[p] = polyfit(test_sog_data,output,1);
-x1 = linspace(min(test_sog_data),max(test_sog_data), length(test_sog_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
-xlabel 'Actual Vg [m/s]'
-ylabel 'Predicted Vg [m/s]'
-title(string)
-
+PlotLinear(test_Vr_data, w2,X_test,'Vr')
 %%
-diff1 = [];
-sog_MSE = 0;
-output = [];
-
-for i = 1:length(test_sog_data)
-    out = predict(Mdl1, X_test(i,1:end-1));
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-sog_summ1 = 0;
-sog_summ2 = 0;
-sog_summ3 = 0;
-for i = 1:length(test_sog_data)
-    out = predict(Mdl1, X_test(i, 1:end-1));
-    sog_summ1 = sog_summ1 + (out-mean_output)*(test_sog_data(i) - mean(test_sog_data));
-    sog_summ2 = sog_summ2 + (out-mean_output)^2;
-    sog_summ3 = sog_summ3 + (test_sog_data(i) - mean(test_sog_data))^2;
-    diff1 = cat(1,diff1, out - test_sog_data(i));
-    sog_MSE = sog_MSE + (test_sog_data(i) - out)^2;
-end
-sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
-sog_RMSE = sqrt(sog_MSE/length(test_sog_data));
-figure;
-scatter(linspace(1,1,length(diff1)),diff1)
-hold on
-boxplot(diff1)
-title 'Error between guessed Vg and actual Vg'
-hold off
+PlotGaus(test_sog_data, Mdl1,X_test,'Vg')
 %%
-figure;
-scatter(test_sog_data, output) 
-hold on
-[p] = polyfit(test_sog_data,output,1);
-x1 = linspace(min(test_sog_data),max(test_sog_data), length(test_sog_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
-xlabel 'Actual Vg [m/s]'
-ylabel 'Predicted Vg [m/s]'
-title(string)
+PlotGaus(test_Vr_data, Mdl2,X_test,'Vr')
+% diff1 = [];
+% sog_MSE = 0;
+% output = [];
+% 
+% for i = 1:length(test_sog_data)
+%     out = w1'*X_test(i, :)';
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% sog_summ1 = 0;
+% sog_summ2 = 0;
+% sog_summ3 = 0;
+% for i = 1:length(test_sog_data)
+%     out = w1'*X_test(i, :)';
+%     sog_summ1 = sog_summ1 + (out-mean_output)*(test_sog_data(i) - mean(test_sog_data));
+%     sog_summ2 = sog_summ2 + (out-mean_output)^2;
+%     sog_summ3 = sog_summ3 + (test_sog_data(i) - mean(test_sog_data))^2;
+%     diff1 = cat(1,diff1, out - test_sog_data(i));
+%     sog_MSE = sog_MSE + (test_sog_data(i) - out)^2;
+% end
+% sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
+% sog_RMSE = sqrt(sog_MSE/length(test_sog_data));
+% figure;
+% scatter(linspace(1,1,length(diff1)),diff1)
+% hold on
+% boxplot(diff1)
+% title 'Error between guessed Vg and actual Vg'
+% hold off
+% %
+% figure;
+% scatter(test_sog_data, output) 
+% hold on
+% [p] = polyfit(test_sog_data,output,1);
+% x1 = linspace(min(test_sog_data),max(test_sog_data), length(test_sog_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+% xlabel 'Actual Vg [m/s]'
+% ylabel 'Predicted Vg [m/s]'
+% title(string)
+stop();
 %%
-diff2 = [];
-vr_MSE = 0;
-output = [];
-for i = 1:length(test_Vr_data)
-    out = w2'*X_test(i, :)';
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-vr_summ1 = 0;
-vr_summ2 = 0;
-vr_summ3 = 0;
-for i = 1:length(test_Vr_data)
-    out = w2'*X_test(i, :)';
-    diff2 = cat(1,diff2,out - test_Vr_data(i));
-    vr_summ1 = vr_summ1 + (out-mean_output)*(test_Vr_data(i) - mean(test_Vr_data));
-    vr_summ2 = vr_summ2 + (out-mean_output)^2;
-    vr_summ3 = vr_summ3 + (test_Vr_data(i) - mean(test_Vr_data))^2;
-    vr_MSE = vr_MSE + (out - test_Vr_data(i))^2;
-end
-vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
-vr_RMSE = sqrt(vr_MSE/length(test_Vr_data));
-figure;
-scatter(linspace(1,1,length(diff2)),diff2)
-hold on
-boxplot(diff2)
-title 'Error between guessed Vr and actual Vr'
-hold off
-%%
-figure;
-scatter(test_Vr_data, output) 
-hold on
-p = polyfit(test_Vr_data,output,1);
-x1 = linspace(min(test_Vr_data),max(test_Vr_data), length(test_Vr_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
-xlabel 'Actual Vr [m/s]'
-ylabel 'Predicted Vr [m/s]'
-title(string)
-%%
-diff2 = [];
-vr_MSE = 0;
-output = [];
-for i = 1:length(test_Vr_data)
-    out = predict(Mdl2, X_test(i, 1:end-1));
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-vr_summ1 = 0;
-vr_summ2 = 0;
-vr_summ3 = 0;
-for i = 1:length(test_Vr_data)
-    out = predict(Mdl2, X_test(i, 1:end-1));
-    diff2 = cat(1,diff2,out - test_Vr_data(i));
-    vr_summ1 = vr_summ1 + (out-mean_output)*(test_Vr_data(i) - mean(test_Vr_data));
-    vr_summ2 = vr_summ2 + (out-mean_output)^2;
-    vr_summ3 = vr_summ3 + (test_Vr_data(i) - mean(test_Vr_data))^2;
-    vr_MSE = vr_MSE + (out - test_Vr_data(i))^2;
-end
-vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
-vr_RMSE = sqrt(vr_MSE/length(test_Vr_data));
-figure;
-scatter(linspace(1,1,length(diff2)),diff2)
-hold on
-boxplot(diff2)
-title 'Error between guessed Vr and actual Vr'
-hold off
-%%
-figure;
-scatter(test_Vr_data, output) 
-hold on
-p = polyfit(test_Vr_data,output,1);
-x1 = linspace(min(test_Vr_data),max(test_Vr_data), length(test_Vr_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
-xlabel 'Actual Vr [m/s]'
-ylabel 'Predicted Vr [m/s]'
-title(string)
-%stop();
+% diff1 = [];
+% sog_MSE = 0;
+% output = [];
+% 
+% for i = 1:length(test_sog_data)
+%     out = predict(Mdl1, X_test(i,1:end-1));
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% sog_summ1 = 0;
+% sog_summ2 = 0;
+% sog_summ3 = 0;
+% for i = 1:length(test_sog_data)
+%     out = predict(Mdl1, X_test(i, 1:end-1));
+%     sog_summ1 = sog_summ1 + (out-mean_output)*(test_sog_data(i) - mean(test_sog_data));
+%     sog_summ2 = sog_summ2 + (out-mean_output)^2;
+%     sog_summ3 = sog_summ3 + (test_sog_data(i) - mean(test_sog_data))^2;
+%     diff1 = cat(1,diff1, out - test_sog_data(i));
+%     sog_MSE = sog_MSE + (test_sog_data(i) - out)^2;
+% end
+% sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
+% sog_RMSE = sqrt(sog_MSE/length(test_sog_data));
+% figure;
+% scatter(linspace(1,1,length(diff1)),diff1)
+% hold on
+% boxplot(diff1)
+% title 'Error between guessed Vg and actual Vg'
+% hold off
+% %%
+% figure;
+% scatter(test_sog_data, output) 
+% hold on
+% [p] = polyfit(test_sog_data,output,1);
+% x1 = linspace(min(test_sog_data),max(test_sog_data), length(test_sog_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+% xlabel 'Actual Vg [m/s]'
+% ylabel 'Predicted Vg [m/s]'
+% title(string)
+% %%
+% diff2 = [];
+% vr_MSE = 0;
+% output = [];
+% for i = 1:length(test_Vr_data)
+%     out = w2'*X_test(i, :)';
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% vr_summ1 = 0;
+% vr_summ2 = 0;
+% vr_summ3 = 0;
+% for i = 1:length(test_Vr_data)
+%     out = w2'*X_test(i, :)';
+%     diff2 = cat(1,diff2,out - test_Vr_data(i));
+%     vr_summ1 = vr_summ1 + (out-mean_output)*(test_Vr_data(i) - mean(test_Vr_data));
+%     vr_summ2 = vr_summ2 + (out-mean_output)^2;
+%     vr_summ3 = vr_summ3 + (test_Vr_data(i) - mean(test_Vr_data))^2;
+%     vr_MSE = vr_MSE + (out - test_Vr_data(i))^2;
+% end
+% vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
+% vr_RMSE = sqrt(vr_MSE/length(test_Vr_data));
+% figure;
+% scatter(linspace(1,1,length(diff2)),diff2)
+% hold on
+% boxplot(diff2)
+% title 'Error between guessed Vr and actual Vr'
+% hold off
+% %%
+% figure;
+% scatter(test_Vr_data, output) 
+% hold on
+% p = polyfit(test_Vr_data,output,1);
+% x1 = linspace(min(test_Vr_data),max(test_Vr_data), length(test_Vr_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
+% xlabel 'Actual Vr [m/s]'
+% ylabel 'Predicted Vr [m/s]'
+% title(string)
+% %%
+% diff2 = [];
+% vr_MSE = 0;
+% output = [];
+% for i = 1:length(test_Vr_data)
+%     out = predict(Mdl2, X_test(i, 1:end-1));
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% vr_summ1 = 0;
+% vr_summ2 = 0;
+% vr_summ3 = 0;
+% for i = 1:length(test_Vr_data)
+%     out = predict(Mdl2, X_test(i, 1:end-1));
+%     diff2 = cat(1,diff2,out - test_Vr_data(i));
+%     vr_summ1 = vr_summ1 + (out-mean_output)*(test_Vr_data(i) - mean(test_Vr_data));
+%     vr_summ2 = vr_summ2 + (out-mean_output)^2;
+%     vr_summ3 = vr_summ3 + (test_Vr_data(i) - mean(test_Vr_data))^2;
+%     vr_MSE = vr_MSE + (out - test_Vr_data(i))^2;
+% end
+% vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
+% vr_RMSE = sqrt(vr_MSE/length(test_Vr_data));
+% figure;
+% scatter(linspace(1,1,length(diff2)),diff2)
+% hold on
+% boxplot(diff2)
+% title 'Error between guessed Vr and actual Vr'
+% hold off
+% %%
+% figure;
+% scatter(test_Vr_data, output) 
+% hold on
+% p = polyfit(test_Vr_data,output,1);
+% x1 = linspace(min(test_Vr_data),max(test_Vr_data), length(test_Vr_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
+% xlabel 'Actual Vr [m/s]'
+% ylabel 'Predicted Vr [m/s]'
+% title(string)
+% %stop();
 
 %% NEW ROUND
-diff1 = [];
-sog_MSE = 0;
-output = [];
-
-for i = 1:length(sog_data)
-    out = w1'*X(i, :)';
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-sog_summ1 = 0;
-sog_summ2 = 0;
-sog_summ3 = 0;
-for i = 1:length(sog_data)
-    out = w1'*X(i, :)';
-    sog_summ1 = sog_summ1 + (out-mean_output)*(sog_data(i) - mean(sog_data));
-    sog_summ2 = sog_summ2 + (out-mean_output)^2;
-    sog_summ3 = sog_summ3 + (sog_data(i) - mean(sog_data))^2;
-    diff1 = cat(1,diff1, out - sog_data(i));
-    sog_MSE = sog_MSE + (sog_data(i) - out)^2;
-end
-sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
-sog_RMSE = sqrt(sog_MSE/length(sog_data));
-figure;
-scatter(linspace(1,1,length(diff1)),diff1)
-hold on
-boxplot(diff1)
-title 'Error between guessed Vg and actual Vg'
-hold off
-%%
-figure;
-scatter(sog_data, output) 
-hold on
-[p] = polyfit(sog_data,output,1);
-x1 = linspace(min(sog_data),max(sog_data), length(sog_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
-xlabel 'Actual Vg [m/s]'
-ylabel 'Predicted Vg [m/s]'
-title(string)
+PlotLinear(sog_data,w1,X,'Vg')
+PlotLinear(Vr_data,w2,X,'Vr')
+PlotGaus(sog_data,Mdl1,X,'Vg')
+PlotGaus(Vr_data,Mdl2,X,'Vr')
 
 %%
-diff1 = [];
-sog_MSE = 0;
-output = [];
-
-for i = 1:length(sog_data)
-    out = predict(Mdl1, X(i,1:end-1));
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-sog_summ1 = 0;
-sog_summ2 = 0;
-sog_summ3 = 0;
-for i = 1:length(sog_data)
-    out = predict(Mdl1, X(i, 1:end-1));
-    sog_summ1 = sog_summ1 + (out-mean_output)*(sog_data(i) - mean(sog_data));
-    sog_summ2 = sog_summ2 + (out-mean_output)^2;
-    sog_summ3 = sog_summ3 + (sog_data(i) - mean(sog_data))^2;
-    diff1 = cat(1,diff1, out - sog_data(i));
-    sog_MSE = sog_MSE + (sog_data(i) - out)^2;
-end
-sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
-sog_RMSE = sqrt(sog_MSE/length(sog_data));
-figure;
-scatter(linspace(1,1,length(diff1)),diff1)
-hold on
-boxplot(diff1)
-title 'Error between guessed Vg and actual Vg'
-hold off
+% diff1 = [];
+% 
+% 
+% sog_MSE = 0;
+% output = [];
+% 
+% for i = 1:length(sog_data)
+%     out = w1'*X(i, :)';
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% sog_summ1 = 0;
+% sog_summ2 = 0;
+% sog_summ3 = 0;
+% for i = 1:length(sog_data)
+%     out = w1'*X(i, :)';
+%     sog_summ1 = sog_summ1 + (out-mean_output)*(sog_data(i) - mean(sog_data));
+%     sog_summ2 = sog_summ2 + (out-mean_output)^2;
+%     sog_summ3 = sog_summ3 + (sog_data(i) - mean(sog_data))^2;
+%     diff1 = cat(1,diff1, out - sog_data(i));
+%     sog_MSE = sog_MSE + (sog_data(i) - out)^2;
+% end
+% sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
+% sog_RMSE = sqrt(sog_MSE/length(sog_data));
+% figure;
+% scatter(linspace(1,1,length(diff1)),diff1)
+% hold on
+% boxplot(diff1)
+% title 'Error between guessed Vg and actual Vg'
+% hold off
+% %%
+% figure;
+% scatter(sog_data, output) 
+% hold on
+% [p] = polyfit(sog_data,output,1);
+% x1 = linspace(min(sog_data),max(sog_data), length(sog_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+% xlabel 'Actual Vg [m/s]'
+% ylabel 'Predicted Vg [m/s]'
+% title(string)
+% 
+% %%
+% diff1 = [];
+% sog_MSE = 0;
+% output = [];
+% 
+% for i = 1:length(sog_data)
+%     out = predict(Mdl1, X(i,1:end-1));
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% sog_summ1 = 0;
+% sog_summ2 = 0;
+% sog_summ3 = 0;
+% for i = 1:length(sog_data)
+%     out = predict(Mdl1, X(i, 1:end-1));
+%     sog_summ1 = sog_summ1 + (out-mean_output)*(sog_data(i) - mean(sog_data));
+%     sog_summ2 = sog_summ2 + (out-mean_output)^2;
+%     sog_summ3 = sog_summ3 + (sog_data(i) - mean(sog_data))^2;
+%     diff1 = cat(1,diff1, out - sog_data(i));
+%     sog_MSE = sog_MSE + (sog_data(i) - out)^2;
+% end
+% sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
+% sog_RMSE = sqrt(sog_MSE/length(sog_data));
+% figure;
+% scatter(linspace(1,1,length(diff1)),diff1)
+% hold on
+% boxplot(diff1)
+% title 'Error between guessed Vg and actual Vg'
+% hold off
+% %%
+% figure;
+% scatter(sog_data, output) 
+% hold on
+% [p] = polyfit(sog_data,output,1);
+% x1 = linspace(min(sog_data),max(sog_data), length(sog_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+% xlabel 'Actual Vg [m/s]'
+% ylabel 'Predicted Vg [m/s]'
+% title(string)
+% %%
+% diff2 = [];
+% vr_MSE = 0;
+% output = [];
+% for i = 1:length(Vr_data)
+%     out = w2'*X(i, :)';
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% vr_summ1 = 0;
+% vr_summ2 = 0;
+% vr_summ3 = 0;
+% for i = 1:length(Vr_data)
+%     out = w2'*X(i, :)';
+%     diff2 = cat(1,diff2,out - Vr_data(i));
+%     vr_summ1 = vr_summ1 + (out-mean_output)*(Vr_data(i) - mean(Vr_data));
+%     vr_summ2 = vr_summ2 + (out-mean_output)^2;
+%     vr_summ3 = vr_summ3 + (Vr_data(i) - mean(Vr_data))^2;
+%     vr_MSE = vr_MSE + (out - Vr_data(i))^2;
+% end
+% vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
+% vr_RMSE = sqrt(vr_MSE/length(Vr_data));
+% figure;
+% scatter(linspace(1,1,length(diff2)),diff2)
+% hold on
+% boxplot(diff2)
+% title 'Error between guessed Vr and actual Vr'
+% hold off
+% %%
+% figure;
+% scatter(Vr_data, output) 
+% hold on
+% p = polyfit(Vr_data,output,1);
+% x1 = linspace(min(Vr_data),max(Vr_data), length(Vr_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
+% xlabel 'Actual Vr [m/s]'
+% ylabel 'Predicted Vr [m/s]'
+% title(string)
+% %%
+% diff2 = [];
+% vr_MSE = 0;
+% output = [];
+% for i = 1:length(Vr_data)
+%     out = predict(Mdl2, X(i, 1:end-1));
+%     output = cat(1, output, out);
+% end
+% mean_output = mean(output);
+% vr_summ1 = 0;
+% vr_summ2 = 0;
+% vr_summ3 = 0;
+% for i = 1:length(Vr_data)
+%     out = predict(Mdl2, X(i, 1:end-1));
+%     diff2 = cat(1,diff2,out - Vr_data(i));
+%     vr_summ1 = vr_summ1 + (out-mean_output)*(Vr_data(i) - mean(Vr_data));
+%     vr_summ2 = vr_summ2 + (out-mean_output)^2;
+%     vr_summ3 = vr_summ3 + (Vr_data(i) - mean(Vr_data))^2;
+%     vr_MSE = vr_MSE + (out - Vr_data(i))^2;
+% end
+% vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
+% vr_RMSE = sqrt(vr_MSE/length(Vr_data));
+% figure;
+% scatter(linspace(1,1,length(diff2)),diff2)
+% hold on
+% boxplot(diff2)
+% title 'Error between guessed Vr and actual Vr'
+% hold off
 %%
-figure;
-scatter(sog_data, output) 
-hold on
-[p] = polyfit(sog_data,output,1);
-x1 = linspace(min(sog_data),max(sog_data), length(sog_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
-xlabel 'Actual Vg [m/s]'
-ylabel 'Predicted Vg [m/s]'
-title(string)
-%%
-diff2 = [];
-vr_MSE = 0;
-output = [];
-for i = 1:length(Vr_data)
-    out = w2'*X(i, :)';
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-vr_summ1 = 0;
-vr_summ2 = 0;
-vr_summ3 = 0;
-for i = 1:length(Vr_data)
-    out = w2'*X(i, :)';
-    diff2 = cat(1,diff2,out - Vr_data(i));
-    vr_summ1 = vr_summ1 + (out-mean_output)*(Vr_data(i) - mean(Vr_data));
-    vr_summ2 = vr_summ2 + (out-mean_output)^2;
-    vr_summ3 = vr_summ3 + (Vr_data(i) - mean(Vr_data))^2;
-    vr_MSE = vr_MSE + (out - Vr_data(i))^2;
-end
-vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
-vr_RMSE = sqrt(vr_MSE/length(Vr_data));
-figure;
-scatter(linspace(1,1,length(diff2)),diff2)
-hold on
-boxplot(diff2)
-title 'Error between guessed Vr and actual Vr'
-hold off
-%%
-figure;
-scatter(Vr_data, output) 
-hold on
-p = polyfit(Vr_data,output,1);
-x1 = linspace(min(Vr_data),max(Vr_data), length(Vr_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
-xlabel 'Actual Vr [m/s]'
-ylabel 'Predicted Vr [m/s]'
-title(string)
-%%
-diff2 = [];
-vr_MSE = 0;
-output = [];
-for i = 1:length(Vr_data)
-    out = predict(Mdl2, X(i, 1:end-1));
-    output = cat(1, output, out);
-end
-mean_output = mean(output);
-vr_summ1 = 0;
-vr_summ2 = 0;
-vr_summ3 = 0;
-for i = 1:length(Vr_data)
-    out = predict(Mdl2, X(i, 1:end-1));
-    diff2 = cat(1,diff2,out - Vr_data(i));
-    vr_summ1 = vr_summ1 + (out-mean_output)*(Vr_data(i) - mean(Vr_data));
-    vr_summ2 = vr_summ2 + (out-mean_output)^2;
-    vr_summ3 = vr_summ3 + (Vr_data(i) - mean(Vr_data))^2;
-    vr_MSE = vr_MSE + (out - Vr_data(i))^2;
-end
-vr_r = vr_summ1/sqrt(vr_summ2*vr_summ3);
-vr_RMSE = sqrt(vr_MSE/length(Vr_data));
-figure;
-scatter(linspace(1,1,length(diff2)),diff2)
-hold on
-boxplot(diff2)
-title 'Error between guessed Vr and actual Vr'
-hold off
-%%
-figure;
-scatter(Vr_data, output) 
-hold on
-p = polyfit(Vr_data,output,1);
-x1 = linspace(min(Vr_data),max(Vr_data), length(Vr_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
-xlabel 'Actual Vr [m/s]'
-ylabel 'Predicted Vr [m/s]'
-title(string)
+% figure;
+% scatter(Vr_data, output) 
+% hold on
+% p = polyfit(Vr_data,output,1);
+% x1 = linspace(min(Vr_data),max(Vr_data), length(Vr_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% string = join(['RMSE = ', num2str(vr_RMSE,4),  ', R = ', num2str(vr_r,4)]);
+% xlabel 'Actual Vr [m/s]'
+% ylabel 'Predicted Vr [m/s]'
+% title(string)
 %%
 figure
 yvalues = {'Vg','ForecastWaveSize','ForecastWaveFreq','abs(\gamma_{wave})',...
