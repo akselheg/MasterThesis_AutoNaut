@@ -10,7 +10,7 @@ rms2 = [];
 ampl = [];
 sog_data = [];
 %% load data
-for i = 1:7
+for i = 1:9
     disp('Loading new data')
     %% load data
     if i == 1
@@ -82,8 +82,48 @@ for i = 1:7
         EulerAngles = load('EulerAngles.mat');
         Heave = load('./Mausund200709_53748/Heave.mat');
         rmpath(path)
-        disp('Done loading data')
      end
+      if i == 8
+        path = './Mausund200710_092034/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        Heave = load('./Mausund200710_092034/Heave.mat');
+        rmpath(path)
+        disp('Done loading data')
+    end
+    if i == 10
+        path = './Mausund200711_084541/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        Heave = load('./Mausund200711_084541/Heave.mat');
+        rmpath(path)
+        disp('Done loading data')
+    end
+    if i == 11
+        path = './Mausund200712_140918/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        Heave = load('./Mausund200712_140918/Heave.mat');
+        rmpath(path)
+        disp('Done loading data')
+    end
+    if i == 9
+        path = './Mausund200712_220202/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        gpsFix.GpsFix.sog = gpsFix.GpsFix.sog(1:70080);
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        Heave = load('./Mausund200712_220202/Heave.mat');
+        rmpath(path)
+        disp('Done loading data')
+    end
 gpsFix = gpsFix.GpsFix;
 EulerAngles = EulerAngles.EulerAngles;
 Heave = Heave.Heave;
@@ -145,9 +185,13 @@ heave2 = heave(2:2:end);
 end
 figure;
 scatter(hzz1,sog_data)
+xlabel 'pitch frequency';ylabel 'Vg'
 figure;
 scatter(hzz2,sog_data)
+xlabel 'heave frequency'; ylabel 'Vg'
 figure;
 scatter(rms1,sog_data)
+xlabel 'pitch amplitude'; ylabel 'Vg'
 figure;
 scatter(rms2,sog_data)
+xlabel 'heave amplitude'; ylabel 'Vg'
