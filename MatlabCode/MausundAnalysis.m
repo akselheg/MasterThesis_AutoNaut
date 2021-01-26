@@ -258,6 +258,10 @@ corrCoefs2 = corrcoef(CorrData2);
 rng('default')
 Mdl1 = fitrgp(X(:,1:end-1), Y1);
 Mdl2 = fitrgp(X(:,1:end-1), Y2);
+% gprMdl1 = fitrgp(X,Y1,'Basis','linear' ,...
+%       'FitMethod','exact','PredictMethod','exact', 'KernelFunction', 'matern52');
+% gprMdl2 = fitrgp(X,Y2,'Basis','linear',...
+%       'FitMethod','exact','PredictMethod','exact', 'KernelFunction', 'matern52');
 
 %%
 diff1 = [];
