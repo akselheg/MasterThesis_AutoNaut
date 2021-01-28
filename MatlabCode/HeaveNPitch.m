@@ -19,8 +19,7 @@ for i = 1:9
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200701_181204/Heave.mat');
-        
+        Heave = load('Heave.mat');
         disp('Done loading data')
         rmpath(path)
     end
@@ -31,8 +30,8 @@ for i = 1:9
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
         Heave = load('Heave.mat');
-        rmpath(path)
         disp('Done loading data')
+        rmpath(path)
     end
     if i == 3
         path = './Mausund200703_080820/';
@@ -40,9 +39,9 @@ for i = 1:9
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200703_080820/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
+        rmpath(path)
     end
     if i == 4
         path = './Mausund200703_132548/';
@@ -50,9 +49,9 @@ for i = 1:9
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200703_132548/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
+        rmpath(path)
     end
     if i == 5
         path = './Mausund200705_120030/';
@@ -60,9 +59,9 @@ for i = 1:9
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200705_120030/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
+        rmpath(path)
     end
     if i == 6
         path = './Mausund200706_154608/';
@@ -70,59 +69,50 @@ for i = 1:9
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200706_154608/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
+        rmpath(path)
     end
-     if i == 7
+    if i == 7
         path = './Mausund200709_53748/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200709_53748/Heave.mat');
+        Heave = load('Heave.mat');
+        disp('Done loading data')
         rmpath(path)
-     end
-      if i == 8
+    end
+    if i == 8
         path = './Mausund200710_092034/';
         addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200710_092034/Heave.mat');
-        rmpath(path)
-        disp('Done loading data')
-    end
-    if i == 10
-        path = './Mausund200711_084541/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200711_084541/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
-    end
-    if i == 11
-        path = './Mausund200712_140918/';
-        addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200712_140918/Heave.mat');
         rmpath(path)
-        disp('Done loading data')
     end
     if i == 9
+        path = './Mausund200703_215938/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        Heave = load('Heave.mat');
+        disp('Done loading data')
+        rmpath(path)
+    end
+    if i == 10
         path = './Mausund200712_220202/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
-        gpsFix.GpsFix.sog = gpsFix.GpsFix.sog(1:70080);
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        Heave = load('./Mausund200712_220202/Heave.mat');
-        rmpath(path)
+        Heave = load('Heave.mat');
         disp('Done loading data')
+        rmpath(path)
     end
 gpsFix = gpsFix.GpsFix;
 EulerAngles = EulerAngles.EulerAngles;
@@ -148,8 +138,7 @@ heave2 = heave(2:2:end);
 % hzz1 = cat(1,hzz1,hz);
 % freq = meanfreq(testsample, Fs);
 % stop;
-    for m = (10*120) : length(time) - (10*120)
-        if ~mod(round((m),1),avrager)
+    for m = (10*120) :avrager: length(gpsFix.sog) - (10*120)
         sog = mean(gpsFix.sog(m-avrager:m+avrager));
         sog_data = cat(1, sog_data,sog);
     %%
@@ -180,18 +169,10 @@ heave2 = heave(2:2:end);
         hz2 = meanfreq(testsample2, Fs);
         hzz2 = cat(1,hzz2, hz2);
         rms2 = cat(1, rms2, rms(testsample2));
-        end
     end
 end
-figure;
-scatter(hzz1,sog_data)
-xlabel 'pitch frequency';ylabel 'Vg'
-figure;
-scatter(hzz2,sog_data)
-xlabel 'heave frequency'; ylabel 'Vg'
-figure;
-scatter(rms1,sog_data)
-xlabel 'pitch amplitude'; ylabel 'Vg'
-figure;
-scatter(rms2,sog_data)
-xlabel 'heave amplitude'; ylabel 'Vg'
+%%
+Plot3Dim(sog_data, hzz1, rms1, 0.05, 0.09, true, 'Ampl', 'Pitch Frequency', 'Vg')
+Plot3Dim(sog_data, hzz2, rms2, 0.4, 0.6, true, 'Ampl', 'Heave Frequency', 'Vg')
+Plot3Dim(sog_data, rms1, hzz1, 0.25, 0.4, true, 'Freq', 'Pitch Amplitude', 'Vg')
+Plot3Dim(sog_data, rms2, hzz2, 0.1, 0.15, true, 'Freq', 'Heave Amplitude', 'Vg')

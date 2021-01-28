@@ -16,7 +16,7 @@ function Plot3Dim(data1, data2, data3, lowthresh, highthresh, Flag, string1, str
     scatter(table3(:,1), table3(:,2))
     legend(join([string1, ' < ', num2str(lowthresh)]),...
         join([num2str(lowthresh),' < ' ,string1, ' < ', num2str(highthresh)]), ...
-        join([string1, ' < ', num2str(highthresh)]))
+        join([string1, ' > ', num2str(highthresh)]))
     xlabel(string2);ylabel(string3);
     if Flag
         p = polyfit(data2,data1,1);
@@ -25,7 +25,7 @@ function Plot3Dim(data1, data2, data3, lowthresh, highthresh, Flag, string1, str
         plot(x1,y1)
         legend(join([string1, ' < ', num2str(lowthresh)]),...
         join([num2str(lowthresh),' < ' ,string1, ' < ', num2str(highthresh)]), ...
-        join([string1, ' < ', num2str(highthresh)]), 'Linear Regression')
+        join([string1, ' > ', num2str(highthresh)]), 'Linear Regression')
     end
     hold off
     
