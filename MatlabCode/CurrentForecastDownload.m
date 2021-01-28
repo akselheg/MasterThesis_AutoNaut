@@ -2,7 +2,7 @@ clearvars;close all;clc;
 
 
 startDate = [2020, 07, 12];
-endDate = [2020, 07, 13];
+endDate = [2020, 07, 12];
 
 startDateString = string(startDate(1)) + "/" + string(startDate(2)) + "/" + string(startDate(3));
 endDateString = string(endDate(1)) + "/" + string(endDate(2)) + "/" + string(endDate(3));
@@ -29,6 +29,6 @@ end
 
 startDateSaveFormat = string(startDate(1)) + "-" + string(startDate(2)) + "-" + string(startDate(3));
 endDateSaveFormat =  string(endDate(1)) + "-" + string(endDate(2)) + "-" + string(endDate(3));
-savename = "currentweatherData_"+ startDateSaveFormat + "_" + endDateSaveFormat + ".mat"; 
+savename = "Weather/currentweatherData_"+ startDateSaveFormat + "_" + endDateSaveFormat + ".mat"; 
 save(savename, 'currentNorth', 'currentEast','longitudeCurrentMap', 'latitudeCurrentMap', 'CurrentInfo','-v7.3');
 disp('Done')
