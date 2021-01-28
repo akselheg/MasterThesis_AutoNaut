@@ -4,7 +4,7 @@ function PlotGaus(data, Mdl, X, string)
     output = [];
 
     for i = 1:length(data)
-        out = predict(Mdl, X(i,1:end-1));
+        out = predict(Mdl, X(i,:));
         output = cat(1, output, out);
     end
     mean_output = mean(output);
@@ -12,7 +12,7 @@ function PlotGaus(data, Mdl, X, string)
     sog_summ2 = 0;
     sog_summ3 = 0;
     for i = 1:length(data)
-        out = predict(Mdl, X(i, 1:end-1));
+        out = predict(Mdl,X(i,:));
         sog_summ1 = sog_summ1 + (out-mean_output)*(data(i) - mean(data));
         sog_summ2 = sog_summ2 + (out-mean_output)^2;
         sog_summ3 = sog_summ3 + (data(i) - mean(data))^2;
