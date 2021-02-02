@@ -1,7 +1,7 @@
 %%
 clearvars;close all;clc;
-startDate = [2020, 05, 28];
-endDate = [2020, 05, 28];
+startDate = [2020, 07, 01];
+endDate = [2020, 07, 02];
 %place = "vestlandet";
 place = "midtnorge";
 ch = char(place);
