@@ -10,6 +10,8 @@ rms2 = [];
 ampl = [];
 wind_data = [];
 sog_data = [];
+soggy = [];
+thetty = [];
 %% load data
 for i = 1:4
     disp('Loading new data')
@@ -120,12 +122,17 @@ EulerAngles = EulerAngles.EulerAngles;
 RelativeWind = RelativeWind.RelativeWind;
 Heave = Heave.Heave;
 heave = Heave.value;
-pitch = EulerAngles.phi;
+pitch = EulerAngles.theta;
 time = gpsFix.timestamp;
 heave1 = heave(1:2:end);
 heave2 = heave(2:2:end);
 messuredRelWindDir = interp1(RelativeWind.timestamp, ssa(RelativeWind.angle,'deg' ),gpsFix.timestamp);
 messuredRelWindSpeed = interp1(RelativeWind.timestamp, RelativeWind.speed,gpsFix.timestamp);
+
+soggy = cat(1,soggy,gpsFix.sog);
+
+thetty = cat(1,thetty,pitch);
+
 
 
 %%
@@ -143,6 +150,7 @@ messuredRelWindSpeed = interp1(RelativeWind.timestamp, RelativeWind.speed,gpsFix
 % freq = meanfreq(testsample, Fs);
 % stop;
     for m = (10*120) :avrager: length(gpsFix.sog) - (10*120)
+        
         sog = mean(gpsFix.sog(m-avrager:m+avrager));
         sog_data = cat(1, sog_data,sog);
         wind = mean(messuredRelWindSpeed(m-avrager:m+avrager));
@@ -192,3 +200,8 @@ Plot2Dim(sog_data,rms1, ' ',' ')
 % Mdl1 = fitrgp(X(:,1:end-1), sog_data, 'KernelFunction', 'matern52');
 % PlotLinear(sog_data, w1, X, 'Vg');
 % PlotGaus(sog_data, Mdl1, X(:,1:end-1), 'Vg')
+
+figure;
+plot(soggy)
+figure;
+plot(thetty)
