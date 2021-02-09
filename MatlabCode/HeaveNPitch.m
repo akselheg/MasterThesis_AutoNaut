@@ -1,5 +1,5 @@
 clearvars; close all; clc;
-avrager = 2*120;
+avrager = 30;
 Fs = 2;
 T = 1/Fs;
 L = 2*avrager;
@@ -13,7 +13,7 @@ sog_data = [];
 soggy = [];
 thetty = [];
 %% load data
-for i = 1:4
+for i = 1:1
     disp('Loading new data')
     %% load data
     if i == 1
@@ -23,6 +23,7 @@ for i = 1:4
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
         Heave = load('Heave.mat');
+        AngVel = load('AngularVelocity.mat');
         disp('Done loading data')
         rmpath(path)
     end
@@ -123,17 +124,26 @@ RelativeWind = RelativeWind.RelativeWind;
 Heave = Heave.Heave;
 heave = Heave.value;
 pitch = EulerAngles.theta;
-time = gpsFix.timestamp;
 heave1 = heave(1:2:end);
 heave2 = heave(2:2:end);
+AngVel.AngularVelocity.timestamp = AngVel.AngularVelocity.timestamp(AngVel.AngularVelocity.y~=0);
+AngVel.AngularVelocity.y = AngVel.AngularVelocity.y(AngVel.AngularVelocity.y~=0);
+time = AngVel.AngularVelocity.timestamp - AngVel.AngularVelocity.timestamp(1);
+
 messuredRelWindDir = interp1(RelativeWind.timestamp, ssa(RelativeWind.angle,'deg' ),gpsFix.timestamp);
 messuredRelWindSpeed = interp1(RelativeWind.timestamp, RelativeWind.speed,gpsFix.timestamp);
-
+speedz = interp1(RelativeWind.timestamp, ssa(RelativeWind.angle,'deg' ),gpsFix.timestamp);
 soggy = cat(1,soggy,gpsFix.sog);
-
 thetty = cat(1,thetty,pitch);
-
-
+thetaDot = AngVel.AngularVelocity.y;
+h = 1/126;
+theeta = zeros(length(thetaDot) + 1, 1);
+thetaDot = lowpass(thetaDot, 30, 126);
+for i = 2:length(theeta)
+    theeta(i) = theeta(i-1) + h*thetaDot(i-1) - 0.0000215;
+end
+figure;
+plot(theeta)
 
 %%
 % testsample = pitch(1000-avrager:1000+avrager+L-1);
@@ -156,30 +166,12 @@ thetty = cat(1,thetty,pitch);
         wind = mean(messuredRelWindSpeed(m-avrager:m+avrager));
         wind_data= cat(1,wind_data,wind);
     %%  
-        testsample1 = pitch(m-avrager:m+avrager);
-        Y = fft(testsample1,L)/L;
-        ampl = cat(1,ampl, mean(Y));
-        Y(1) = 0;
-        %ampl= 2*abs(Y(1:ceil(L/2)));
-        P2 = abs(Y/L);
-        P1 = P2(1:L/2+1);
-        P1(2:end-1) = 2*P1(2:end-1);
-        f = Fs * (1:(L/2))/L;
-        [mp, i] = max(abs(Y(1:ceil(L/2))).^2);
-        hz = meanfreq(testsample1, Fs);
-        hzz1 = cat(1,hzz1, f(i));
+        testsample1 = thetaDot(m-avrager:m+avrager);
+        hz = meanfreq(testsample1, 126);
+        hzz1 = cat(1,hzz1, hz);
         rms1 = cat(1, rms1,rms(testsample1));
-        %
+        
         testsample2 = heave2(m-avrager:m+avrager);
-        Y = fft(testsample2,L)/L;
-        Y(1) = 0;
-        ampl= 2*abs(Y(1:ceil(L/2)));
-        P2 = abs(Y/L);
-        P1 = P2(1:L/2+1);
-        P1(2:end-1) = 2*P1(2:end-1);
-        f = Fs * (1:(L/2))/L;
-
-        [mp, i] = max(abs(Y(1:ceil(L/2))).^2);
         hz2 = meanfreq(testsample2, Fs);
         hzz2 = cat(1,hzz2, hz2);
         rms2 = cat(1, rms2, rms(testsample2));

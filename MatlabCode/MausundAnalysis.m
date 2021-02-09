@@ -218,6 +218,7 @@ for i = 2:10
         ForecastWaveSize = waveSize(x, y, curr_hour + 1);
         currentSurge = currentSpeed*cos(ssa(deg2rad(VcDir - psi)));
         windSurge = ForcastWindSpeed*cos(ssa(deg2rad(curWindDir - psi)));
+        
         % Save current data
         if mod(count,5)
             ForecastWaveFreq_data = cat(1,ForecastWaveFreq_data, ForecastWaveFreq);            
