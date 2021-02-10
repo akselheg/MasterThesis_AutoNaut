@@ -213,7 +213,7 @@ for i = 2:10
         % Messured wind speed and direction relative to the vessel
         curMessuredRelWindDir = mean(messuredRelWindDir(m-avrager:m+avrager));
         curMessuredRelWindSpeed = mean(messuredRelWindSpeed(m-avrager:m+avrager));
-        relWaveDir = ssa(cog- curWaveDir - 180, 'deg');
+        relWaveDir = ssa(psi- curWaveDir - 180, 'deg');
         ForecastWaveFreq =  waveHZ(x,y,curr_hour+1);
         ForecastWaveSize = waveSize(x, y, curr_hour + 1);
         currentSurge = currentSpeed*cos(ssa(deg2rad(VcDir - psi)));
@@ -254,10 +254,10 @@ for i = 2:10
     end
     disp('Run Success')
     figure(1)
-    plot(lon_data,lat_data, 'b')
+    geoplot(lat_data,lon_data, 'b')
     hold on
-    scatter(lon_data(1), lat_data(1), 'g')
-    scatter(lon_data(end), lat_data(end), 'r')
+    geoscatter(lat_data(1), lon_data(1), 'g')
+    geoscatter(lat_data(end), lon_data(end), 'r')
     lon_data = [];
     lat_data = [];
     pause(0.01)
@@ -265,7 +265,7 @@ end
 %%
 
 
-quiver(longitudeMapWave,latitudeMapWave, windDir(:,:,2),windSpeed(:,:,2))
+%quiver(longitudeMapWave,latitudeMapWave, windDir(:,:,2),windSpeed(:,:,2))
 meanSog = mean(sog_data);
 
 %% Fit Linear model
@@ -428,7 +428,7 @@ for m = (10*120) : 2*avrager:length(gps_data.sog) - (10*120)
         % Messured wind speed and direction relative to the vessel
         curMessuredRelWindDir = mean(messuredRelWindDir(m-avrager:m+avrager));
         curMessuredRelWindSpeed = mean(messuredRelWindSpeed(m-avrager:m+avrager));
-        relWaveDir = ssa(cog- curWaveDir - 180, 'deg');
+        relWaveDir = ssa(psi- curWaveDir - 180, 'deg');
         ForecastWaveFreq =  waveHZ(x,y,curr_hour+1);
         ForecastWaveSize = waveSize(x, y, curr_hour + 1);
         currentSurge = currentSpeed*cos(ssa(deg2rad(VcDir - psi)));
