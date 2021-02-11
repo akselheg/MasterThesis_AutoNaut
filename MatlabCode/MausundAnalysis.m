@@ -28,10 +28,10 @@ test_Vr_data = [];
 xmax = 0; ymax = 0; ymin = inf; xmin = inf;
 avrager = 6*60; % average over x min
 count = 1;
-for i = 2:10
+for i = 2:8
     disp('Loading new data')
     %% load data
-    if i == 1
+    if i == 4
         path = './Mausund200701_181204/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
@@ -64,7 +64,7 @@ for i = 2:10
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 4
+    if i == 1
         path = './Mausund200703_132548/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
@@ -76,50 +76,6 @@ for i = 2:10
         disp('Done loading data')
     end
     if i == 5
-        path = './Mausund200705_120030/';
-        addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        rmpath(path)
-        load('./Weather/weatherData_2020-7-5_2020-7-5.mat')
-        load('./Weather/currentweatherData_2020-7-5_2020-7-5.mat')
-        disp('Done loading data')
-    end
-    if i == 6
-        path = './Mausund200706_154608/';
-        addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        rmpath(path)
-        load('./Weather/weatherData_2020-7-6_2020-7-6.mat')
-        load('./Weather/currentweatherData_2020-7-6_2020-7-6.mat')
-        disp('Done loading data')
-    end
-    if i == 7
-        path = './Mausund200709_53748/';
-        addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        rmpath(path)
-        load('./Weather/weatherData_2020-7-9_2020-7-9.mat')
-        load('./Weather/currentweatherData_2020-7-9_2020-7-9.mat')
-        disp('Done loading data')
-    end
-    if i == 8
-        path = './Mausund200710_092034/';
-        addpath(path);
-        gpsFix = load('GpsFix.mat');
-        RelativeWind = load('RelativeWind.mat');
-        EulerAngles = load('EulerAngles.mat');
-        rmpath(path)
-        load('./Weather/weatherData_2020-7-10_2020-7-10.mat')
-        load('./Weather/currentweatherData_2020-7-10_2020-7-10.mat')
-        disp('Done loading data')
-    end
-    if i == 9
         path = './Mausund200703_215938/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
@@ -131,18 +87,41 @@ for i = 2:10
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 10
-        path = './Mausund200712_220202/';
+    if i == 6
+        path = './Mausund200705_120030/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
-        gpsFix.GpsFix.sog = gpsFix.GpsFix.sog(1:70080);
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
         rmpath(path)
-        load('./Weather/weatherData_2020-7-12_2020-7-12.mat')
-        load('./Weather/currentweatherData_2020-7-12_2020-7-13.mat')
+        load('./Weather/weatherData_2020-7-5_2020-7-5.mat')
+        load('./Weather/currentweatherData_2020-7-5_2020-7-5.mat')
         disp('Done loading data')
     end
+    if i == 7
+        path = './Mausund200706_154608/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        rmpath(path)
+        load('./Weather/weatherData_2020-7-6_2020-7-6.mat')
+        load('./Weather/currentweatherData_2020-7-6_2020-7-6.mat')
+        disp('Done loading data')
+    end
+    if i == 8
+        path = './Mausund200709_53748/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        rmpath(path)
+        load('./Weather/weatherData_2020-7-9_2020-7-9.mat')
+        load('./Weather/currentweatherData_2020-7-9_2020-7-9.mat')
+        disp('Done loading data')
+    end
+
+
     %% Format and interpolations
     disp('Formating')
     gps_data = gpsFix.GpsFix;
@@ -269,10 +248,10 @@ end
 meanSog = mean(sog_data);
 
 %% Fit Linear model
-X = [ForecastWaveSize_data ForecastWaveFreq_data (cos(deg2rad(relWaveDir_data)))  ...
+X = [ForecastWaveSize_data ForecastWaveFreq_data ((deg2rad(relWaveDir_data)))  ...
    ForcastWindSpeed_data CurrentSpeed_data ones(length(sog_data),1)];
 w1 = (X'*X)\(X'*sog_data);
-X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data (cos(deg2rad(test_relWaveDir_data)))  ...
+X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data ((deg2rad(test_relWaveDir_data)))  ...
     test_ForcastWindSpeed_data test_CurrentSpeed_data ones(length(test_sog_data),1)]; 
 CorrData1 = [[sog_data;test_sog_data] [X(:, 1:end-1);X_test(:, 1:end-1)]];
 corrCoefs1 = corrcoef(CorrData1);
@@ -294,8 +273,8 @@ PlotLinear(test_Vr_data, w2,X_test,'Vr')
 %% Test of models on training dataset
 PlotLinear(sog_data,w1,X,'Vg')
 PlotLinear(Vr_data,w2,X,'Vr')
-PlotGaus(test_Vr_data, Mdl2,X_test(:,1:end-1),'Vr')
-PlotGaus(test_sog_data, Mdl1,X_test(:,1:end-1),'Vg')
+PlotGaus(Vr_data, Mdl2,X(:,1:end-1),'Vr')
+PlotGaus(sog_data, Mdl1,X(:,1:end-1),'Vg')
 %% Plot correlation matrices
 % PlotHeat(corrCoefs1,'Vg')
 % PlotHeat(corrCoefs2,'Vr')
@@ -349,15 +328,17 @@ new_CurrentSpeed_data = [];
 new_Vr_data = [];
 disp('Loading new data')
 %% load data
-path = './Mausund200701_181204/';
+
+path = './Mausund200703_132548/';
 addpath(path);
 gpsFix = load('GpsFix.mat');
 RelativeWind = load('RelativeWind.mat');
 EulerAngles = load('EulerAngles.mat');
+load('./Weather/weatherData_2020-7-3_2020-7-4.mat')
+load('./Weather/currentweatherData_2020-7-3_2020-7-4.mat')
 rmpath(path)
-load('./Weather/weatherData_2020-7-1_2020-7-2.mat') % Must be downloaded locally
-load('./Weather/currentweatherData_2020-7-1_2020-7-3.mat') % Must be downloaded locally
 disp('Done loading data')
+
 %% Format and interpolations
 disp('Formating')
 gps_data = gpsFix.GpsFix;
@@ -457,7 +438,7 @@ end
 disp('Run Success')
 %%
 new_X = [new_ForecastWaveSize_data new_ForecastWaveFreq_data ...
-    (cos(deg2rad(new_relWaveDir_data))) new_ForcastWindSpeed_data ...
+    ((deg2rad(new_relWaveDir_data))) new_ForcastWindSpeed_data ...
         new_CurrentSpeed_data ones(length(new_sog_data),1)];
 %%
 PlotLinear(new_sog_data, w1,new_X,'Vg')
