@@ -1,5 +1,6 @@
 %% Clear workspace
 clc; clearvars; close all;
+%rehash; rehash path;rehash toolbox; rehash toolboxcache;
 
 %% Data That can be downladed from neptus that are relevant
 % AbsoluteWind,Depth,DesiredHeading,DesiredPath,DesiredSpeed,DesiredZ,GpsFix,RelativeWind,RemoteSensorInfo,EstimatedState,EulerAngles
@@ -24,97 +25,107 @@ test_relWaveDir_data = [];
 test_ForcastWindSpeed_data = [];
 test_CurrentSpeed_data = [];
 test_Vr_data = [];
+actuation = [];
+test_actuation = [];
 
 xmax = 0; ymax = 0; ymin = inf; xmin = inf;
-avrager = 6*60; % average over x min
+avrager = 3*60; % average over x min
 count = 1;
-for i = 2:8
+for i = 2:7
     disp('Loading new data')
     %% load data
-    if i == 4
+    if i == 1
         path = './Mausund200701_181204/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
-        rmpath(path)
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         load('./Weather/weatherData_2020-7-1_2020-7-2.mat') % Must be downloaded locally
         load('./Weather/currentweatherData_2020-7-1_2020-7-3.mat') % Must be downloaded locally
+        rmpath(path)
         disp('Done loading data')
     end
-    if i == 2
+    if i == 1
         path = './Mausund200701_221241/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         load('./Weather/weatherData_2020-7-1_2020-7-2.mat')
         load('./Weather/currentweatherData_2020-7-1_2020-7-3.mat')
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 3
+    if i == 4 %nei
         path = './Mausund200703_080820/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         load('./Weather/weatherData_2020-7-3_2020-7-4.mat')
         load('./Weather/currentweatherData_2020-7-3_2020-7-4.mat')
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 1
+    if i == 5 %nei
         path = './Mausund200703_132548/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         load('./Weather/weatherData_2020-7-3_2020-7-4.mat')
         load('./Weather/currentweatherData_2020-7-3_2020-7-4.mat')
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 5
+    if i == 3 % ok i guess
         path = './Mausund200703_215938/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         gpsFix.GpsFix.sog = gpsFix.GpsFix.sog(1:54441);
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         load('./Weather/weatherData_2020-7-3_2020-7-4.mat')
         load('./Weather/currentweatherData_2020-7-3_2020-7-4.mat')
         rmpath(path)
         disp('Done loading data')
     end
-    if i == 6
+    if i == 6 %nei
         path = './Mausund200705_120030/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         rmpath(path)
         load('./Weather/weatherData_2020-7-5_2020-7-5.mat')
         load('./Weather/currentweatherData_2020-7-5_2020-7-5.mat')
         disp('Done loading data')
     end
-    if i == 7
+    if i == 7 % meh
         path = './Mausund200706_154608/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         rmpath(path)
         load('./Weather/weatherData_2020-7-6_2020-7-6.mat')
         load('./Weather/currentweatherData_2020-7-6_2020-7-6.mat')
         disp('Done loading data')
     end
-    if i == 8
+    if i == 2 %neeei
         path = './Mausund200709_53748/';
         addpath(path);
         gpsFix = load('GpsFix.mat');
         RelativeWind = load('RelativeWind.mat');
         EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
         rmpath(path)
         load('./Weather/weatherData_2020-7-9_2020-7-9.mat')
         load('./Weather/currentweatherData_2020-7-9_2020-7-9.mat')
@@ -130,11 +141,18 @@ for i = 2:8
     EulerAngles.psi = ssa(EulerAngles.psi,'deg');
     messuredRelWindDir = interp1(windData.timestamp, ssa(windData.angle,'deg' ),gps_data.timestamp);
     messuredRelWindSpeed = interp1(windData.timestamp, windData.speed,gps_data.timestamp);
+    actuator = interp1(SetThrusterActuation.SetThrusterActuation.timestamp, ...
+        SetThrusterActuation.SetThrusterActuation.value,gps_data.timestamp) ;
     old_hour = 100000;
     disp('Done formating')
     disp('Start running through data')
+    if i == 1 
+        offff = 100;
+    else
+        offff =20;
+    end
     %% run
-    for m = (10*120) : 2*avrager: length(gps_data.sog) - (10*120)
+    for m = (20*120) : 2*avrager: length(gps_data.sog) - (offff*120)
         curr_hour = floor(double(gps_data.utc_time(m))/3600) ...
             + 24*(double(gps_data.utc_day(m)-gps_data.utc_day(1)));
 
@@ -170,12 +188,12 @@ for i = 2:8
         if waveHZ(x,y,curr_hour+1) < 0.1 
             disp([num2str(waveHZ(x,y,curr_hour+1)) num2str(lat) num2str(lon)])
         end
-
+        
         % Current vector at given time and position
         currentNorthCur = currentNorth(xcurrent,ycurrent,curr_hour+1);
         currentEastCur = currentEast(xcurrent,ycurrent,curr_hour+1);
         Vc = [currentNorthCur; currentEastCur];
-
+        avgActuation = mean(actuator(m-avrager:m+avrager));
         % Velocity vector of the vessel
         Vg = [sog*cos(deg2rad(cog)); sog*sin(deg2rad(cog))];
         Vr = Vg - Vc;
@@ -192,7 +210,7 @@ for i = 2:8
         % Messured wind speed and direction relative to the vessel
         curMessuredRelWindDir = mean(messuredRelWindDir(m-avrager:m+avrager));
         curMessuredRelWindSpeed = mean(messuredRelWindSpeed(m-avrager:m+avrager));
-        relWaveDir = ssa(psi- curWaveDir - 180, 'deg');
+        relWaveDir = ssa(psi - curWaveDir - 180, 'deg');
         ForecastWaveFreq =  waveHZ(x,y,curr_hour+1);
         ForecastWaveSize = waveSize(x, y, curr_hour + 1);
         currentSurge = currentSpeed*cos(ssa(deg2rad(VcDir - psi)));
@@ -214,6 +232,8 @@ for i = 2:8
             ForcastWindSpeed_data = cat(1, ForcastWindSpeed_data, windSurge);
             CurrentSpeed_data = cat(1, CurrentSpeed_data, currentSurge);
             relWaveDir_data = cat(1, relWaveDir_data, relWaveDir);
+            actuation = cat(1,actuation,avgActuation);
+
         else
             test_ForecastWaveSize_data = cat(1,test_ForecastWaveSize_data, ForecastWaveSize);
             test_Vr_data = cat(1, test_Vr_data,VrSpeed);
@@ -222,6 +242,7 @@ for i = 2:8
             test_ForcastWindSpeed_data = cat(1,test_ForcastWindSpeed_data, windSurge);
             test_CurrentSpeed_data = cat(1,test_CurrentSpeed_data, currentSurge);
             test_relWaveDir_data = cat(1,test_relWaveDir_data, relWaveDir);
+            test_actuation = cat(1,test_actuation,avgActuation);
         end
         if old_hour ~= curr_hour 
             str = sprintf('| Day: %d  | Hour: %d \t|', ...
@@ -248,22 +269,23 @@ end
 meanSog = mean(sog_data);
 
 %% Fit Linear model
-X = [ForecastWaveSize_data ForecastWaveFreq_data ((deg2rad(relWaveDir_data)))  ...
-   ForcastWindSpeed_data CurrentSpeed_data ones(length(sog_data),1)];
+X = [ForecastWaveSize_data ForecastWaveFreq_data deg2rad(relWaveDir_data)  ...
+   ForcastWindSpeed_data CurrentSpeed_data actuation ones(length(sog_data),1)];
 w1 = (X'*X)\(X'*sog_data);
-X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data ((deg2rad(test_relWaveDir_data)))  ...
-    test_ForcastWindSpeed_data test_CurrentSpeed_data ones(length(test_sog_data),1)]; 
+X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data deg2rad(test_relWaveDir_data)  ...
+    test_ForcastWindSpeed_data test_CurrentSpeed_data test_actuation ones(length(test_sog_data),1)]; 
 CorrData1 = [[sog_data;test_sog_data] [X(:, 1:end-1);X_test(:, 1:end-1)]];
 corrCoefs1 = corrcoef(CorrData1);
+% PlotHeat(corrCoefs1,'Vg')
 w2 = (X'*X)\(X'*Vr_data);
 CorrData2 = [[Vr_data;test_Vr_data] [X(:, 1:end-1);X_test(:, 1:end-1)]];
 corrCoefs2 = corrcoef(CorrData2);
 %% Fit Gaussian model
-rng('default')
+%rng('default')
 Mdl1 = fitrgp(X(:,1:end-1), sog_data, 'KernelFunction', 'matern52');%, 'KernelParameters', [1, std(sog_data)/sqrt(2)]);
 PlotGaus(test_sog_data, Mdl1,X_test(:,1:end-1),'Vg')
    %%
-Mdl2 = fitrgp(X(:,1:end-1), Vr_data, 'KernelFunction', 'matern52', 'KernelParameters', [1, cov(Vr_data)]);
+Mdl2 = fitrgp(X(:,1:end-1), Vr_data, 'KernelFunction', 'matern52');
 PlotGaus(test_Vr_data, Mdl2,X_test(:,1:end-1),'Vr')
 phi = [mean(std(X));std(y)/sqrt(2)];
 %% Test of models on test dataset
@@ -282,36 +304,36 @@ PlotGaus(sog_data, Mdl1,X(:,1:end-1),'Vg')
 %% Relevant plots
 disp('Plotting Data')
 % speed as a func of relative wave angle of attack with wave size coloured 
-Plot3Dim([sog_data; test_sog_data], [relWaveDir_data; test_relWaveDir_data],...
-    [ForecastWaveSize_data; test_ForecastWaveSize_data], 1.2, 1.6, ...
-    false, 'Vg [m/s]','Wave angle of attack [deg]',  'Wave Size')
-% speed as a func of relative wave angle of attack with wave frequency coloured 
-Plot3Dim([sog_data; test_sog_data], [relWaveDir_data; test_relWaveDir_data],...
-    [ForecastWaveFreq_data; test_ForecastWaveFreq_data], 6.5, 8, ...
-    false, 'Vg [m/s]', 'Wave angle of attack [deg]', 'Wave peak period')
-% speed as a func of wave frequency with wave size coloured 
-Plot3Dim([sog_data; test_sog_data], [ForecastWaveFreq_data; test_ForecastWaveFreq_data],...
-    [ForecastWaveSize_data; test_ForecastWaveSize_data], 1.2, 1.6, ...
-    true, 'Vg [m/s]', 'Wave Frequency [Hz]','Wave Size' )
-% speed as a func of wave size with wave frequency coloured 
-Plot3Dim([sog_data; test_sog_data], [ForecastWaveSize_data; test_ForecastWaveSize_data], ...
-    [ForecastWaveFreq_data; test_ForecastWaveFreq_data], 6.5, 8, ...
-    true, 'Vg [m/s]', 'Wave Size [m]', 'Wave peak period')
-% speed as a func of wave frequency
-Plot2Dim([sog_data; test_sog_data],  [ForecastWaveFreq_data; test_ForecastWaveFreq_data], ...
-    'Wave Frequency [Hz]', 'Vg [m/s]' )
-% speed as a func of wave size 
-Plot2Dim([sog_data; test_sog_data], [ForecastWaveSize_data; test_ForecastWaveSize_data], ...
-     'Wave Size [m]','Vg [m/s]')
-% speed as a func of rellative wind direction with relative wind speed coloured 
-Plot3Dim(sog_data, messuredRelWindDir_data, messuredRelWindSpeed_data, 3, 6, ...
-    false, 'Vg [m/s]', 'Measured Relative wind direction [deg]','Wind Speed' )
-% speed as a func of current speed in surge direction of body 
-Plot2Dim([sog_data; test_sog_data], [CurrentSpeed_data; test_CurrentSpeed_data], ...
-    'Current Speed in Surge Direction [m/s]','Vg [m/s]')
-% speed as a func of current speed in surge direction of body 
-Plot2Dim([sog_data; test_sog_data],[ForcastWindSpeed_data; test_ForcastWindSpeed_data], ...
-      'Wind Speed in Surge Direction [m/s]','Vg [m/s]')
+% Plot3Dim([sog_data; test_sog_data], [relWaveDir_data; test_relWaveDir_data],...
+%     [ForecastWaveSize_data; test_ForecastWaveSize_data], 1.2, 1.6, ...
+%     false, 'Vg [m/s]','Wave angle of attack [deg]',  'Wave Size')
+% % speed as a func of relative wave angle of attack with wave frequency coloured 
+% Plot3Dim([sog_data; test_sog_data], [relWaveDir_data; test_relWaveDir_data],...
+%     [ForecastWaveFreq_data; test_ForecastWaveFreq_data], 6.5, 8, ...
+%     false, 'Vg [m/s]', 'Wave angle of attack [deg]', 'Wave peak period')
+% % speed as a func of wave frequency with wave size coloured 
+% Plot3Dim([sog_data; test_sog_data], [ForecastWaveFreq_data; test_ForecastWaveFreq_data],...
+%     [ForecastWaveSize_data; test_ForecastWaveSize_data], 1.2, 1.6, ...
+%     true, 'Vg [m/s]', 'Wave Frequency [Hz]','Wave Size' )
+% % speed as a func of wave size with wave frequency coloured 
+% Plot3Dim([sog_data; test_sog_data], [ForecastWaveSize_data; test_ForecastWaveSize_data], ...
+%     [ForecastWaveFreq_data; test_ForecastWaveFreq_data], 6.5, 8, ...
+%     true, 'Vg [m/s]', 'Wave Size [m]', 'Wave peak period')
+% % speed as a func of wave frequency
+% Plot2Dim([sog_data; test_sog_data],  [ForecastWaveFreq_data; test_ForecastWaveFreq_data], ...
+%     'Wave Frequency [Hz]', 'Vg [m/s]' )
+% % speed as a func of wave size 
+% Plot2Dim([sog_data; test_sog_data], [ForecastWaveSize_data; test_ForecastWaveSize_data], ...
+%      'Wave Size [m]','Vg [m/s]')
+% % speed as a func of rellative wind direction with relative wind speed coloured 
+% Plot3Dim(sog_data, messuredRelWindDir_data, messuredRelWindSpeed_data, 3, 6, ...
+%     false, 'Vg [m/s]', 'Measured Relative wind direction [deg]','Wind Speed' )
+% % speed as a func of current speed in surge direction of body 
+% Plot2Dim([sog_data; test_sog_data], [CurrentSpeed_data; test_CurrentSpeed_data], ...
+%     'Current Speed in Surge Direction [m/s]','Vg [m/s]')
+% % speed as a func of current speed in surge direction of body 
+% Plot2Dim([sog_data; test_sog_data],[ForcastWindSpeed_data; test_ForcastWindSpeed_data], ...
+%       'Wind Speed in Surge Direction [m/s]','Vg [m/s]')
 
 %% Redo for testing on different dataset
 % Data to be saved for plots
@@ -326,32 +348,35 @@ new_ForecastWaveFreq_data = [];
 new_ForcastWindSpeed_data = [];
 new_CurrentSpeed_data = [];
 new_Vr_data = [];
+new_Actuation = [];
 disp('Loading new data')
 %% load data
-
-path = './Mausund200703_132548/';
-addpath(path);
-gpsFix = load('GpsFix.mat');
-RelativeWind = load('RelativeWind.mat');
-EulerAngles = load('EulerAngles.mat');
-load('./Weather/weatherData_2020-7-3_2020-7-4.mat')
-load('./Weather/currentweatherData_2020-7-3_2020-7-4.mat')
-rmpath(path)
-disp('Done loading data')
-
+        path = './Mausund200701_221241/';
+        addpath(path);
+        gpsFix = load('GpsFix.mat');
+        RelativeWind = load('RelativeWind.mat');
+        EulerAngles = load('EulerAngles.mat');
+        SetThrusterActuation = load('SetThrusterActuation.mat');
+        load('./Weather/weatherData_2020-7-1_2020-7-2.mat')
+        load('./Weather/currentweatherData_2020-7-1_2020-7-3.mat')
+        rmpath(path)
+        disp('Done loading data')
 %% Format and interpolations
 disp('Formating')
 gps_data = gpsFix.GpsFix;
 windData = RelativeWind.RelativeWind;
 EulerAngles = EulerAngles.EulerAngles;
 EulerAngles.psi = ssa(EulerAngles.psi,'deg');
+actuation = interp1(SetThrusterActuation.SetThrusterActuation.timestamp, ...
+        SetThrusterActuation.SetThrusterActuation.value,gps_data.timestamp);
 messuredRelWindDir = interp1(windData.timestamp, ssa(windData.angle,'deg'),gps_data.timestamp);
 messuredRelWindSpeed = interp1(windData.timestamp, windData.speed,gps_data.timestamp);
 old_hour = 100000;
 disp('Done formating')
 disp('Start running through data')
+
 %% run
-for m = (10*120) : 2*avrager:length(gps_data.sog) - (10*120)
+for m = (20*120) : 2*avrager:length(gps_data.sog) - (20*120)
     curr_hour = floor(double(gps_data.utc_time(m))/3600) ...
         + 24*(double(gps_data.utc_day(m)-gps_data.utc_day(1)));
 
@@ -409,12 +434,12 @@ for m = (10*120) : 2*avrager:length(gps_data.sog) - (10*120)
         % Messured wind speed and direction relative to the vessel
         curMessuredRelWindDir = mean(messuredRelWindDir(m-avrager:m+avrager));
         curMessuredRelWindSpeed = mean(messuredRelWindSpeed(m-avrager:m+avrager));
-        relWaveDir = ssa(psi- curWaveDir - 180, 'deg');
+        relWaveDir = ssa(psi - curWaveDir - 180, 'deg');
         ForecastWaveFreq =  waveHZ(x,y,curr_hour+1);
         ForecastWaveSize = waveSize(x, y, curr_hour + 1);
         currentSurge = currentSpeed*cos(ssa(deg2rad(VcDir - psi)));
         windSurge = ForcastWindSpeed*cos(ssa(deg2rad(curWindDir - psi)));
-        
+        avgActuation = mean(actuation(m-avrager:m+avrager));
         % Save current data
         new_ForecastWaveFreq_data = cat(1,new_ForecastWaveFreq_data, ForecastWaveFreq);            
         new_ForecastWaveSize_data = cat(1, new_ForecastWaveSize_data, ForecastWaveSize);
@@ -425,6 +450,7 @@ for m = (10*120) : 2*avrager:length(gps_data.sog) - (10*120)
         new_ForcastWindSpeed_data = cat(1, new_ForcastWindSpeed_data, windSurge);
         new_CurrentSpeed_data = cat(1, new_CurrentSpeed_data, currentSurge);
         new_relWaveDir_data = cat(1, new_relWaveDir_data, relWaveDir);
+        new_Actuation = cat(1,new_Actuation,avgActuation);
 
     if old_hour ~= curr_hour
         str = sprintf('| Day: %d  | Hour: %d \t|', ...
@@ -438,8 +464,8 @@ end
 disp('Run Success')
 %%
 new_X = [new_ForecastWaveSize_data new_ForecastWaveFreq_data ...
-    ((deg2rad(new_relWaveDir_data))) new_ForcastWindSpeed_data ...
-        new_CurrentSpeed_data ones(length(new_sog_data),1)];
+         deg2rad(new_relWaveDir_data) new_ForcastWindSpeed_data ...
+        new_CurrentSpeed_data new_Actuation ones(length(new_sog_data),1)];
 %%
 PlotLinear(new_sog_data, w1,new_X,'Vg')
 %%
