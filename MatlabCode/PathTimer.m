@@ -78,5 +78,5 @@ geoscatter(rad2deg(GpsFix.lat(1)),rad2deg(GpsFix.lon(1)),'g')
 geoscatter(rad2deg(GpsFix.lat(end)),rad2deg(GpsFix.lon(end)),'r')
 a = latitudeMapWave(1:100,100:250);
 b = longitudeMapWave(1:100,100:250);
-geoscatter(a(:),b(:), 'w')
+%geoscatter(a(:),b(:), 'w')
 %quiver(longitudeMapWave,latitudeMapWave, windDir(:,:,2),windSpeed(:,:,2))

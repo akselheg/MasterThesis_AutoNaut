@@ -44,6 +44,7 @@ for i = 0:numDays
     windDir(:,:,24*i+19:24*i+42) = ncread(waveData,'dd');
     waveHZ(:,:,24*i+19:24*i+42) = ncread(waveData,'tp');
     windSpeed(:,:,24*i+19:24*i+42) = ncread(waveData,'ff');
+    
 end
 startDateSaveFormat = string(startDate(1)) + "-" + string(startDate(2)) + "-" + string(startDate(3));
 endDateSaveFormat =  string(endDate(1)) + "-" + string(endDate(2)) + "-" + string(endDate(3));
