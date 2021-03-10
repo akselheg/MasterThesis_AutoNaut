@@ -2,9 +2,9 @@ function loadCSVtoMat(file)
     switch file
         case 'AngularVelocity.csv'
             data  = read_csv_file('AngularVelocity.csv');
-            AngularVelocity.timestamp = data.timestamp_secondsSince01_01_1970_;
             av_mask = all(char(data.entity{:}) == 'STB - ADIS',2);
             gps_r_mask = all(char(data.entity{:}) == 'GPS       ',2);
+            AngularVelocity.timestamp = data.timestamp_secondsSince01_01_1970_(av_mask);
             AngularVelocity.x = data.x_rad_s_(av_mask);
             AngularVelocity.y = data.y_rad_s_(av_mask);
             AngularVelocity.z = data.z_rad_s_(av_mask);
