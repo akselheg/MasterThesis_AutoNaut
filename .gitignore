@@ -2,3 +2,5 @@
 *Weather/
 *plots/
 *.csv
+*Acceleration.mat
+*AngularVelocity.mat
