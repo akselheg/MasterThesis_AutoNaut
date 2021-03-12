@@ -1,5 +1,5 @@
 %% Clear Workspace
-clc; clearvars;close all;
+close all;
 addpath AnalysisFiles
 
 
@@ -19,10 +19,10 @@ heaveeAmpl = [];
 heaveeFreq = [];
 Sogs = [];
 
-for inputData = 1 : 4
+for inputData = 1 : 1
 %% Load Data
     if inputData == 1 
-        path = './Mausund200701_181204';
+        path = './Mausund200705_120030';
     end
     if inputData == 2 
         path = './Mausund200703_062402';
@@ -33,6 +33,7 @@ for inputData = 1 : 4
     if inputData == 4
         path = './Mausund200701_221241';
     end
+
     
     addpath(path)
     load AngularVelocity.mat;
@@ -41,7 +42,7 @@ for inputData = 1 : 4
     load Heave.mat;
     load EulerAngles.mat;
     rmpath(path)
-    
+
     %% 
     %plot(Acceleration.x)
 
@@ -61,7 +62,7 @@ for inputData = 1 : 4
     
     SpeedOverGround = interp1(GpsFix.timestamp, GpsFix.sog, timestamp);
     HeaveEsttimator = Heave.value(Heave.src_ent==39);
-    HeaveEst = interp1(Heave.timestamp, HeaveEsttimator, timestamp, 'pchip');
+    HeaveEst = interp1(Heave.timestamp, HeaveEsttimator, timestamp);
 %     EulerAngles.timestamp = EulerAngles.timestamp - EulerAngles.timestamp(1);
 %     roll = interp1(EulerAngles.timestamp, EulerAngles.phi, timestamp, 'pchip');
 %     pitch = interp1(EulerAngles.timestamp, EulerAngles.theta, timestamp, 'pchip');
@@ -80,6 +81,7 @@ for inputData = 1 : 4
     for i = 1:length(Acceleration.z)
         heaveDot(i+1) = euler2(heaveDotDot(i),heaveDot(i),1/123);
     end
+    
     heaveDot = filter(hpFilt,heaveDot);
     heaveDot = filter(lpFilt,heaveDot);
     heavee = zeros(length(heaveDot) + 1,1);
@@ -94,14 +96,13 @@ for inputData = 1 : 4
     for i = 1:length(AngularVelocity.x)
         roll(i+1) = euler2(rollDot(i),roll(i),1/123);
     end
-
     pitchDot = filter(hpFilt, AngularVelocity.y);
     pitchDot = filter(lpFilt, pitchDot);
     pitch = zeros(length(AngularVelocity.y)+1,1);
     for i = 1:length(AngularVelocity.y)
         pitch(i+1) = euler2(pitchDot(i),pitch(i),1/123);
     end
-    
+    %         
     M = 4000;
     for i = 10*N:N:length(AngularVelocity.y) - 10*N
 
@@ -109,6 +110,11 @@ for inputData = 1 : 4
         time = timestamp(i:3:i+N);
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
+        plot(time,X)
+        hold on
+        plot(locs, pks, 'pg', 'MarkerFaceColor','red','MarkerSize',15)
+        hold off
+        pause()
 
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
@@ -132,12 +138,16 @@ for inputData = 1 : 4
 %         [~,idx] = max(fitfun(w(1:M)));
         pitchRatesFreq = cat(1,pitchRatesFreq,avg_freq_radians_per_second);
         pitchRateAmplitudes = cat(1,pitchRateAmplitudes, sqrt(2)*rms(X - mean(X)));
-        
+        %         
         %stop;
         X = double(AngularVelocity.x(i:3:i+N));
         time = timestamp(i:3:i+N);
-        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
+        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
+        plot(time,X)
+        hold on
+        plot(locs, pks, 'pg', 'MarkerFaceColor','red','MarkerSize',15)
+        %pause()
 
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
@@ -147,7 +157,7 @@ for inputData = 1 : 4
         X = double(roll(i:3:i+N));
         
         time = timestamp(i:3:i+N);
-        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
+        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
         avg_freq_hz = 1./avg_periods_from_peaks;
@@ -157,7 +167,7 @@ for inputData = 1 : 4
         
         X = pitch(i:3:i+N);
         time = timestamp(i:3:i+N);
-        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
+        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
         avg_freq_hz = 1./avg_periods_from_peaks;
@@ -176,7 +186,7 @@ for inputData = 1 : 4
         X = double(HeaveEst(i:3:i+N));
         
         time = timestamp(i:3:i+N);
-        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',3);
+        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',2);
         avg_periods_from_peaks = mean(diff(locs));
 %         plot(time,X)
 %         pause(0.1)
@@ -244,31 +254,10 @@ figure;scatter(heaveeAmpl,Sogs);
 MdlInput = [heavefreq heaveamplitude];
 %MdlInput = [pitchamplitudes rollamplitudes  heaveamplitude];
 %%
-Mdl1 = fitrgp(MdlInput, (Sogs), 'KernelFunction', 'matern52');
+%Mdl1 = fitrgp(MdlInput, (Sogs), 'KernelFunction', 'matern52');
 %%
 PlotGaus(Sogs, Mdl1,MdlInput,'Vg')
 
-%%
-CorrData = [Sogs pitchRatesFreq rollRateFreq pitchRateAmplitudes ...\
-    rollRateAmplitudes rollFreq heavefreq heaveamplitude ...
-    rollAmplitudes pitchFreq pitchAmplitudes heaveDotfreq ...
-    heaveDotAmpl heaveeFreq heaveeAmpl];
-corrCoefs = corrcoef(CorrData);
-figure;
-% yvalues = {'Vg','pitchamplitudes',...
-%     'rollamplitudes',  'heaveamplitude'};
-% xvalues = {'Vg','pitchamplitudes',...
-%     'rollamplitudes',  'heaveamplitude'};
-yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-    'rollRateAmplitudes','rollFreq', 'heavefreq', 'heaveamplitude', ...
-    'rollAmplitudes', 'pitchFreq', 'pitchAmplitudes','heaveDotfreq', ...
-    'heaveDotAmpl', 'heaveeFreq', 'heaveeAmpl'};
-xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-    'rollRateAmplitudes', 'rollFreq', ' heavefreq', 'heaveamplitude', ...
-    'rollAmplitudes', 'pitchFreq', 'pitchAmplitudes','heaveDotfreq', ...
-    'heaveDotAmpl', 'heaveeFreq', 'heaveeAmpl'};
-h = heatmap(xvalues,yvalues,corrCoefs);
-h.Title = 'Correlation Matrix';
 
 
 

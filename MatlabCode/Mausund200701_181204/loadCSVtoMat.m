@@ -24,3 +24,4 @@ function loadCSVtoMat(file)
             save('Acceleration.mat', 'Acceleration','-v7.3')
     end
 end
+%rehash toolbox; loadCSVtoMat('AngularVelocity.csv');loadCSVtoMat('Acceleration.csv');

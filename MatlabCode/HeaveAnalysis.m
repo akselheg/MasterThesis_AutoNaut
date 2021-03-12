@@ -14,7 +14,7 @@ rmpath ./Mausund200701_221241
 
 heave_signal = Heave.value(Heave.src_ent == 39);
 heave_timestamp = Heave.timestamp(Heave.src_ent == 39) - Heave.timestamp(1);
-m = 2*120;
+m = 6*120;
 c = 1;
 
 lpFilt = designfilt('lowpassfir','PassbandFrequency',0.3, ...
@@ -31,7 +31,7 @@ for i = 10000 : m : length(heave_timestamp) - 10000
     signal_timest_vec = heave_timestamp(i:i+m);
     heave_small_signal = filtSig(i:i+m);
 
-    [pks,locs] = findpeaks(heave_small_signal,signal_timest_vec,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
+    [pks,locs] = findpeaks(heave_small_signal,signal_timest_vec,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',3);
     % where you feed the heave signal and its timestamp vector.
     avg_periods_from_peaks = mean(diff(locs));
 
