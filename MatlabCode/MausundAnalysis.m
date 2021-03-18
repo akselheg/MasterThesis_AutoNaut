@@ -17,6 +17,8 @@ relWaveDir_data = [];
 ForecastWaveFreq_data = [];
 ForcastWindSpeed_data = [];
 CurrentSpeed_data = [];
+ForcastWindDir_data = [];
+CurrentDir_data =[];
 Vr_data = [];
 test_sog_data = [];
 test_ForecastWaveSize_data = [];
@@ -24,6 +26,8 @@ test_ForecastWaveFreq_data = [];
 test_relWaveDir_data = [];
 test_ForcastWindSpeed_data = [];
 test_CurrentSpeed_data = [];
+test_ForcastWindDir_data = [];
+test_CurrentDir_data =[];
 test_Vr_data = [];
 actuation = [];
 test_actuation = [];
@@ -229,8 +233,10 @@ for i = 2:7
             messuredRelWindSpeed_data = cat(1, messuredRelWindSpeed_data, curMessuredRelWindSpeed);
             Vr_data = cat(1, Vr_data,VrSpeed);
             sog_data = cat(1, sog_data,sog);
-            ForcastWindSpeed_data = cat(1, ForcastWindSpeed_data, windSurge);
-            CurrentSpeed_data = cat(1, CurrentSpeed_data, currentSurge);
+            ForcastWindSpeed_data = cat(1, ForcastWindSpeed_data, ForcastWindSpeed);
+            ForcastWindDir_data = cat(1, ForcastWindDir_data, ssa(curWindDir - psi,'deg'));
+            CurrentSpeed_data = cat(1, CurrentSpeed_data, currentSpeed);
+            CurrentDir_data = cat(1, CurrentDir_data, ssa(VcDir - psi,'deg'));
             relWaveDir_data = cat(1, relWaveDir_data, relWaveDir);
             actuation = cat(1,actuation,avgActuation);
 
@@ -239,8 +245,11 @@ for i = 2:7
             test_Vr_data = cat(1, test_Vr_data,VrSpeed);
             test_sog_data = cat(1, test_sog_data,sog);
             test_ForecastWaveFreq_data = cat(1,test_ForecastWaveFreq_data, ForecastWaveFreq);
-            test_ForcastWindSpeed_data = cat(1,test_ForcastWindSpeed_data, windSurge);
-            test_CurrentSpeed_data = cat(1,test_CurrentSpeed_data, currentSurge);
+            
+            test_ForcastWindSpeed_data = cat(1, test_ForcastWindSpeed_data, ForcastWindSpeed);
+            test_ForcastWindDir_data = cat(1, test_ForcastWindDir_data, ssa(curWindDir - psi,'deg'));
+            test_CurrentSpeed_data = cat(1, test_CurrentSpeed_data, currentSpeed);
+            test_CurrentDir_data = cat(1, test_CurrentDir_data, ssa(VcDir - psi,'deg'));
             test_relWaveDir_data = cat(1,test_relWaveDir_data, relWaveDir);
             test_actuation = cat(1,test_actuation,avgActuation);
         end
@@ -269,11 +278,11 @@ end
 meanSog = mean(sog_data);
 
 %% Fit Linear model
-X = [ForecastWaveSize_data ForecastWaveFreq_data deg2rad(relWaveDir_data)  ...
-   ForcastWindSpeed_data CurrentSpeed_data actuation ones(length(sog_data),1)];
+X = [ForecastWaveSize_data ForecastWaveFreq_data (relWaveDir_data) ForcastWindDir_data  CurrentDir_data ...
+   ForcastWindSpeed_data CurrentSpeed_data  ones(length(sog_data),1)];
 w1 = (X'*X)\(X'*sog_data);
-X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data deg2rad(test_relWaveDir_data)  ...
-    test_ForcastWindSpeed_data test_CurrentSpeed_data test_actuation ones(length(test_sog_data),1)]; 
+X_test = [test_ForecastWaveSize_data test_ForecastWaveFreq_data (test_relWaveDir_data) test_ForcastWindDir_data ...
+    test_CurrentDir_data test_ForcastWindSpeed_data test_CurrentSpeed_data  ones(length(test_sog_data),1)]; 
 CorrData1 = [[sog_data;test_sog_data] [X(:, 1:end-1);X_test(:, 1:end-1)]];
 corrCoefs1 = corrcoef(CorrData1);
 % PlotHeat(corrCoefs1,'Vg')
@@ -297,7 +306,7 @@ PlotLinear(sog_data,w1,X,'Vg')
 PlotLinear(Vr_data,w2,X,'Vr')
 PlotGaus(Vr_data, Mdl2,X(:,1:end-1),'Vr')
 PlotGaus(sog_data, Mdl1,X(:,1:end-1),'Vg')
-%% Plot correlation matrices
+%% Plot correlation matricesnew_CurrentDir_data
 % PlotHeat(corrCoefs1,'Vg')
 % PlotHeat(corrCoefs2,'Vr')
 
@@ -347,6 +356,8 @@ new_relWaveDir_data = [];
 new_ForecastWaveFreq_data = [];
 new_ForcastWindSpeed_data = [];
 new_CurrentSpeed_data = [];
+new_ForcastWindDir_data = [];
+new_CurrentDir_data =[];
 new_Vr_data = [];
 new_Actuation = [];
 disp('Loading new data')
@@ -447,8 +458,10 @@ for m = (20*120) : 2*avrager:length(gps_data.sog) - (20*120)
         new_messuredRelWindSpeed_data = cat(1, new_messuredRelWindSpeed_data, curMessuredRelWindSpeed);
         new_Vr_data = cat(1, new_Vr_data,VrSpeed);
         new_sog_data = cat(1, new_sog_data,sog);
-        new_ForcastWindSpeed_data = cat(1, new_ForcastWindSpeed_data, windSurge);
-        new_CurrentSpeed_data = cat(1, new_CurrentSpeed_data, currentSurge);
+        new_ForcastWindSpeed_data = cat(1, new_ForcastWindSpeed_data, ForcastWindSpeed);
+        new_ForcastWindDir_data = cat(1, new_ForcastWindDir_data, ssa(curWindDir - psi,'deg'));
+        new_CurrentSpeed_data = cat(1, new_CurrentSpeed_data, currentSpeed);
+        new_CurrentDir_data = cat(1, new_CurrentDir_data, ssa(VcDir - psi,'deg'));
         new_relWaveDir_data = cat(1, new_relWaveDir_data, relWaveDir);
         new_Actuation = cat(1,new_Actuation,avgActuation);
 
@@ -464,8 +477,8 @@ end
 disp('Run Success')
 %%
 new_X = [new_ForecastWaveSize_data new_ForecastWaveFreq_data ...
-         deg2rad(new_relWaveDir_data) new_ForcastWindSpeed_data ...
-        new_CurrentSpeed_data new_Actuation ones(length(new_sog_data),1)];
+         deg2rad(new_relWaveDir_data) new_ForcastWindDir_data new_CurrentDir_data new_ForcastWindSpeed_data ...
+        new_CurrentSpeed_data  ones(length(new_sog_data),1)];
 %%
 PlotLinear(new_sog_data, w1,new_X,'Vg')
 %%
