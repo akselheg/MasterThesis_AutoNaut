@@ -21,6 +21,7 @@ lpFilt = designfilt('lowpassfir','PassbandFrequency',0.3, ...
     'StopbandFrequency',0.5,'PassbandRipple',0.5, ...
     'StopbandAttenuation',65,'DesignMethod','kaiserwin','SampleRate',2);
 filtSig = filter(lpFilt,heave_signal);
+
 %filtSig = heave_signal;
 freqz = zeros(length(10000 : m : length(heave_timestamp) - 10000),1);
 speeds = zeros(length(10000 : m : length(heave_timestamp) - 10000),1);
