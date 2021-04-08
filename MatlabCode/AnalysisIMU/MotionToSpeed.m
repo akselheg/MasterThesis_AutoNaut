@@ -1,6 +1,8 @@
 %% Clear Workspace
-close all;
+clc; clearvars;close all;
+addpath '..'
 addpath AnalysisFiles
+
 
 
 pitchRatesFreq = [];
@@ -19,22 +21,25 @@ heaveeAmpl = [];
 heaveeFreq = [];
 Sogs = [];
 
-for inputData = 1 : 1
+for inputData = 1 : 8
 %% Load Data
     if inputData == 1 
-        path = './Mausund200705_120030';
-    end
-    if inputData == 2 
+        path = './Mausund200701_181204';
+    elseif inputData == 2 
         path = './Mausund200703_062402';
-    end
-    if inputData == 3 
+    elseif inputData == 3 
         path = './Mausund200703_080820';
-    end
-    if inputData == 4
+    elseif inputData == 4
         path = './Mausund200701_221241';
-    end
-
-    
+    elseif inputData == 5
+        path = './Mausund200703_132548'; 
+    elseif inputData == 6
+        path = './Mausund200703_215938';
+    elseif inputData == 7
+        path = './Mausund200706_154608';
+    elseif inputData == 8
+        path = './Mausund200709_53748';
+    end 
     addpath(path)
     load AngularVelocity.mat;
     load Acceleration.mat;
@@ -42,7 +47,7 @@ for inputData = 1 : 1
     load Heave.mat;
     load EulerAngles.mat;
     rmpath(path)
-
+    
     %% 
     %plot(Acceleration.x)
 
@@ -245,10 +250,32 @@ figure;scatter(heaveeAmpl,Sogs);
 %MdlInput = [heavefreq heaveamplitude];
 MdlInput = [pitchAmplitudes pitchFreq rollAmplitudes rollFreq heaveAmplitude heavefreq];
 %%
-%Mdl1 = fitrgp(MdlInput, (Sogs), 'KernelFunction', 'matern52');
+Mdl1 = fitrgp(MdlInput, (Sogs), 'KernelFunction', 'matern52');
 %%
 PlotGaus(Sogs, Mdl1,MdlInput,'Vg')
 
+%%
+CorrData = [Sogs pitchRatesFreq rollRateFreq pitchRateAmplitudes ...\
+    rollRateAmplitudes rollFreq heavefreq heaveAmplitude ...
+    rollAmplitudes pitchFreq pitchAmplitudes heaveDotfreq ...
+    heaveDotAmpl heaveeFreq heaveeAmpl];
+corrCoefs = corrcoef(CorrData);
+figure;
+% yvalues = {'Vg','pitchamplitudes',...
+%     'rollamplitudes',  'heaveamplitude'};
+% xvalues = {'Vg','pitchamplitudes',...
+%     'rollamplitudes',  'heaveamplitude'};
+yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+    'rollRateAmplitudes','rollFreq', 'heavefreq', 'heaveamplitude', ...
+    'rollAmplitudes', 'pitchFreq', 'pitchAmplitudes','heaveDotfreq', ...
+    'heaveDotAmpl', 'heaveeFreq', 'heaveeAmpl'};
+xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+    'rollRateAmplitudes', 'rollFreq', ' heavefreq', 'heaveamplitude', ...
+    'rollAmplitudes', 'pitchFreq', 'pitchAmplitudes','heaveDotfreq', ...
+    'heaveDotAmpl', 'heaveeFreq', 'heaveeAmpl'};
+h = heatmap(xvalues,yvalues,corrCoefs);
+h.Title = 'Correlation Matrix';
+%MotionToSpeedTest;
 
 
 

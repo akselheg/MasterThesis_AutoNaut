@@ -1,11 +1,13 @@
 %% Clear Workspace
 clc; clearvars; close all;
-addpath './AnalysisFiles'
+addpath '..'
+addpath '../AnalysisFiles'
+
 
 %% Constants
 fs = 2;
 n = 3*60*fs;
-pad = 5*60*fs;
+pad = 15*60*fs;
 first = true;
 
 %% Data to save
@@ -31,32 +33,52 @@ test_WindSpeed_data = [];
 test_WaveSize_data = [];
 test_waveHz_data = [];
 
-for dataRun = 1:4
+for dataRun = 1:8
     %% Data Loading
     disp('Loading Weather data data')
     if dataRun == 1
-        path = 'Trondheim082546';
-        load './Weather/currentweatherData_2020-2-20_2020-2-20.mat';
-        load './Weather/weatherData_2020-2-20_2020-2-20.mat';
-        Heavemask = 42;
+        path = '../Mausund200701_181204';
+        load '../Weather/weatherData_2020-7-1_2020-7-2';
+        load '../Weather/currentweatherData_2020-7-1_2020-7-3';
     elseif dataRun == 2
-        path = 'Trondheim094058';
+        path = '../Mausund200701_221241';
+        load '../Weather/weatherData_2020-7-1_2020-7-2';
+        load '../Weather/currentweatherData_2020-7-1_2020-7-3';
     elseif dataRun == 3
-        path = 'Trondheim101916';
+        path = '../Mausund200703_062402';
+        load '../Weather/weatherData_2020-7-3_2020-7-4';
+        load '../Weather/currentweatherData_2020-7-3_2020-7-4';       
     elseif dataRun == 4
-        path = 'Trondheim101916';
+        path = '../Mausund200703_080820';
+        load '../Weather/weatherData_2020-7-3_2020-7-4';
+        load '../Weather/currentweatherData_2020-7-3_2020-7-4';     
+    elseif dataRun == 9
+        path = '../Mausund200703_132548';
+        load '../Weather/weatherData_2020-7-3_2020-7-4';
+        load '../Weather/currentweatherData_2020-7-3_2020-7-4';    
+    elseif dataRun == 6
+        path = '../Mausund200703_215938';
+        load '../Weather/weatherData_2020-7-3_2020-7-4';
+        load '../Weather/currentweatherData_2020-7-3_2020-7-4'  
+    elseif dataRun == 7
+        path = '../Mausund200705_120030';
+        load '../Weather/weatherData_2020-7-5_2020-7-5';
+        load '../Weather/currentweatherData_2020-7-5_2020-7-5' 
+    elseif dataRun == 8
+        path = '../Mausund200706_154608';
+        load '../Weather/weatherData_2020-7-6_2020-7-6';
+        load '../Weather/currentweatherData_2020-7-6_2020-7-6' 
     elseif dataRun == 5
-        path = 'Trondheim101916';
-        load './Weather/currentweatherData_2020-5-28_2020-5-29.mat';
-        load './Weather/weatherData_2020-5-28_2020-5-28.mat';
-        Heavemask = 39;
+        path = '../Mausund200709_53748';
+        load '../Weather/weatherData_2020-7-9_2020-7-9';
+        load '../Weather/currentweatherData_2020-7-9_2020-7-9' 
     end
     disp('done')
         
     disp('Loading AutoNaut data')
     addpath(path);
     load 'RelativeWind.mat';
-    %load 'AbsoluteWind.mat';
+    load 'AbsoluteWind.mat';
     load 'GpsFix.mat';
     load 'Heave.mat';
     load 'EulerAngles';
@@ -69,12 +91,12 @@ for dataRun = 1:4
     RelativeWind.speed = interp1(RelativeWind.timestamp, RelativeWind.speed,GpsFix.timestamp);
     RelativeWind.timestamp = interp1(RelativeWind.timestamp, RelativeWind.timestamp,GpsFix.timestamp);
     
-%     AbsoluteWind.dir = interp1(AbsoluteWind.timestamp, ssa(AbsoluteWind.dir,'deg' ),GpsFix.timestamp);
-%     AbsoluteWind.speed = interp1(AbsoluteWind.timestamp, AbsoluteWind.speed,GpsFix.timestamp);
-%     AbsoluteWind.timestamp = interp1(AbsoluteWind.timestamp, AbsoluteWind.timestamp,GpsFix.timestamp);
+    AbsoluteWind.dir = interp1(AbsoluteWind.timestamp, ssa(AbsoluteWind.dir,'deg' ),GpsFix.timestamp);
+    AbsoluteWind.speed = interp1(AbsoluteWind.timestamp, AbsoluteWind.speed,GpsFix.timestamp);
+    AbsoluteWind.timestamp = interp1(AbsoluteWind.timestamp, AbsoluteWind.timestamp,GpsFix.timestamp);
 
-    HeaveValue = smooth(Heave.value(Heave.src_ent==Heavemask));
-    HeaveTime = Heave.timestamp(Heave.src_ent==Heavemask);
+    HeaveValue = smooth(Heave.value(Heave.src_ent==39));
+    HeaveTime = Heave.timestamp(Heave.src_ent==39);
 
     %% Set off more space 
     idx_offset = length(lon_data);
@@ -138,12 +160,12 @@ for dataRun = 1:4
 
         % Wind data
         WindDir = ssa(mean(RelativeWind.angle(i:i+n)-180),'deg');
-        WindSpeed = mean(RelativeWind.speed(i:i+n));
+        WindSpeed = mean(AbsoluteWind.speed(i:i+n));
 
         % Wave approx 
-        X = HeaveValue(i:i+n);
+        curHeave = HeaveValue(i:i+n);
         time = HeaveTime(i:i+n);
-        [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
+        [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
@@ -159,7 +181,7 @@ for dataRun = 1:4
             Currentdir_data(idx + idx_offset) = ssa(psi - VcDir,'deg');
             WaveDir_data(idx + idx_offset) = ssa(psi - waveDir(x,y,curr_hour+1),'deg');
             waveHz_data(idx + idx_offset) = avg_freq_radians_per_second;
-            WaveSize_data(idx + idx_offset) = 2*sqrt(2)*rms(X-mean(X));
+            WaveSize_data(idx + idx_offset) = 2*sqrt(2)*rms(curHeave-mean(curHeave));
             idx = idx + 1;
         else
             test_sog_data(test_idx+test_idx_offset) = sog;
@@ -171,7 +193,7 @@ for dataRun = 1:4
             test_Currentdir_data(test_idx + test_idx_offset) = ssa(psi - VcDir,'deg');
             test_WaveDir_data(test_idx + test_idx_offset) = ssa(psi - waveDir(x,y,curr_hour+1),'deg');
             test_waveHz_data(test_idx + test_idx_offset) = avg_freq_radians_per_second;
-            test_WaveSize_data(test_idx + test_idx_offset) = 2*sqrt(2)*rms(X-mean(X));
+            test_WaveSize_data(test_idx + test_idx_offset) = 2*sqrt(2)*rms(curHeave-mean(curHeave));
             test_idx = test_idx + 1;
         end
         testingdata = testingdata + 1;
@@ -215,21 +237,35 @@ PlotLinear(test_sog_data,w1,X_test,'Vg')
 %% Gaussian Regression model
 X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
     WindSpeed_data WaveSize_data waveHz_data];
-Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52');
+Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52', ...
+    'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+    struct('AcquisitionFunctionName','expected-improvement-plus'));
+%%
 X_gauss_test = [test_CurrentSpeed_data test_Currentdir_data ...
     test_WaveDir_data test_WindDir_data test_WindSpeed_data ...
     test_WaveSize_data test_waveHz_data];
+
 PlotGaus(test_sog_data, Mdl1, X_gauss_test,'Vg')
+
+[pred,~, yci] = predict(Mdl1, X_gauss_test);
+figure;
+plot(1:length(test_sog_data),test_sog_data,'r.');
+hold on
+plot(1:length(test_sog_data),pred);
+plot(1:length(test_sog_data),(yci(:,1)),'k:');
+plot(1:length(test_sog_data),(yci(:,2)),'k:');
+xlabel('x');
+ylabel('y');
 
 %% Machine Learning model
 X_ML = X_gauss';
-[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', 10);
+[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', 15);
 X_ML_test = X_gauss_test';
 figure; plotregression(sog_data', MyNet(X_ML));
 figure; plotregression(test_sog_data', MyNet(X_ML_test));
 
 %% Run Testscript
-%testNewAnalysis;
+testNewAnalysis;
 
 %% Clearing and ending script
-rmpath './AnalysisFiles'
+rmpath '../AnalysisFiles'

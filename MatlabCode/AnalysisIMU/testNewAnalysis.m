@@ -5,22 +5,22 @@ pad = 15*60*fs;
 first = true;
 
 %% Data to save
-lon_data = [];
-lat_data = [];
-sog_data = [];
-CurrentSpeed_data = [];
-Currentdir_data = [];
-WaveDir_data = [];
-WindDir_data = [];
-WindSpeed_data = [];
-WaveSize_data = [];
-waveHz_data = [];
+new_lon_data = [];
+new_lat_data = [];
+new_sog_data = [];
+new_CurrentSpeed_data = [];
+new_Currentdir_data = [];
+new_WaveDir_data = [];
+new_WindDir_data = [];
+new_WindSpeed_data = [];
+new_WaveSize_data = [];
+new_waveHz_data = [];
 
 %% Data Loading
 disp('Loading Weather data data')
-path = './Mausund200703_132548';
-load './Weather/weatherData_2020-7-3_2020-7-4';
-load './Weather/currentweatherData_2020-7-3_2020-7-4';   
+path = '../Mausund200703_132548';
+load '../Weather/weatherData_2020-7-3_2020-7-4';
+load '../Weather/currentweatherData_2020-7-3_2020-7-4';   
 disp('done')
 disp('Loading AutoNaut data')
 addpath(path);
@@ -45,19 +45,19 @@ HeaveValue = smooth(Heave.value(Heave.src_ent==39));
 HeaveTime = Heave.timestamp(Heave.src_ent==39);
 
 %% Set off more space 
-idx_offset = length(lon_data);
+idx_offset = length(new_lon_data);
 newPadding = length(1:length(pad: n : length(GpsFix.sog) - pad));
 
-lon_data = cat(1, lon_data, zeros(newPadding, 1));
-lat_data = cat(1, lat_data, zeros(newPadding, 1));
-sog_data = cat(1, sog_data, zeros(newPadding, 1));
-CurrentSpeed_data = cat(1, CurrentSpeed_data, zeros(newPadding, 1));
-Currentdir_data = cat(1, Currentdir_data, zeros(newPadding, 1));
-WaveDir_data = cat(1, WaveDir_data, zeros(newPadding, 1));
-WindDir_data = cat(1, WindDir_data, zeros(newPadding, 1));
-WindSpeed_data = cat(1, WindSpeed_data, zeros(newPadding, 1));
-WaveSize_data = cat(1, WaveSize_data, zeros(newPadding, 1));
-waveHz_data = cat(1, waveHz_data, zeros(newPadding, 1));
+new_lon_data = cat(1, new_lon_data, zeros(newPadding, 1));
+new_lat_data = cat(1, new_lat_data, zeros(newPadding, 1));
+new_sog_data = cat(1, new_sog_data, zeros(newPadding, 1));
+new_CurrentSpeed_data = cat(1, new_CurrentSpeed_data, zeros(newPadding, 1));
+new_Currentdir_data = cat(1, new_Currentdir_data, zeros(newPadding, 1));
+new_WaveDir_data = cat(1, new_WaveDir_data, zeros(newPadding, 1));
+new_WindDir_data = cat(1, new_WindDir_data, zeros(newPadding, 1));
+new_WindSpeed_data = cat(1, new_WindSpeed_data, zeros(newPadding, 1));
+new_WaveSize_data = cat(1, new_WaveSize_data, zeros(newPadding, 1));
+new_waveHz_data = cat(1, new_waveHz_data, zeros(newPadding, 1));
 %% Main loop
 idx = 1;
 disp('Start Going through data')
@@ -92,39 +92,49 @@ for i= pad: n : length(GpsFix.sog) - pad
     WindSpeed = mean(AbsoluteWind.speed(i:i+n));
 
     % Wave approx 
-    X = HeaveValue(i:i+n);
+    curHeave = HeaveValue(i:i+n);
     time = HeaveTime(i:i+n);
-    [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
+    [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
     avg_periods_from_peaks = mean(diff(locs));
     avg_freq_hz = 1./avg_periods_from_peaks;
     avg_freq_radians_per_second = 2*pi*avg_freq_hz;
 
     % Save Data
-    sog_data(idx+idx_offset) = sog;
-    lon_data(idx + idx_offset) = lon;
-    lat_data(idx + idx_offset) = lat;
-    WindDir_data(idx + idx_offset) = WindDir;
-    WindSpeed_data(idx + idx_offset) = WindSpeed;
-    CurrentSpeed_data(idx + idx_offset) = norm(Vc);
-    Currentdir_data(idx + idx_offset) = ssa(psi - VcDir,'deg');
-    WaveDir_data(idx + idx_offset) = ssa(psi - waveDir(x,y,curr_hour+1),'deg');
-    waveHz_data(idx + idx_offset) = avg_freq_radians_per_second;
-    WaveSize_data(idx + idx_offset) = 2*sqrt(2)*rms(X-mean(X));
+    new_sog_data(idx+idx_offset) = sog;
+    new_lon_data(idx + idx_offset) = lon;
+    new_lat_data(idx + idx_offset) = lat;
+    new_WindDir_data(idx + idx_offset) = WindDir;
+    new_WindSpeed_data(idx + idx_offset) = WindSpeed;
+    new_CurrentSpeed_data(idx + idx_offset) = norm(Vc);
+    new_Currentdir_data(idx + idx_offset) = ssa(psi - VcDir,'deg');
+    new_WaveDir_data(idx + idx_offset) = ssa(psi - waveDir(x,y,curr_hour+1),'deg');
+    new_waveHz_data(idx + idx_offset) = avg_freq_radians_per_second;
+    new_WaveSize_data(idx + idx_offset) = 2*sqrt(2)*rms(curHeave-mean(curHeave));
     idx = idx + 1;
 
 end
 disp('done')
 %% Linear Regression model
-X = [CurrentSpeed_data.*cos(deg2rad(Currentdir_data)) WaveDir_data  ...
-   WindSpeed_data.*cos(deg2rad(WindDir_data))  WaveSize_data  waveHz_data ...
-   ones(length(sog_data),1)];
-PlotLinear(sog_data,w1,X,'Vg')
+new_X = [new_CurrentSpeed_data.*cos(deg2rad(new_Currentdir_data)) new_WaveDir_data  ...
+   new_WindSpeed_data.*cos(deg2rad(new_WindDir_data))  new_WaveSize_data  new_waveHz_data ...
+   ones(length(new_sog_data),1)];
+PlotLinear(new_sog_data,w1,new_X,'Vg')
 
 %% Gaussian Regression model
-X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
-    WindSpeed_data WaveSize_data waveHz_data];
+new_X_gauss = [new_CurrentSpeed_data new_Currentdir_data new_WaveDir_data new_WindDir_data ...
+    new_WindSpeed_data new_WaveSize_data new_waveHz_data];
 PlotGaus(sog_data, Mdl1, X_gauss,'Vg')
+%%
+[pred,~, yci] = predict(Mdl1, X_gauss);
+figure;
+plot(1:length(sog_data),sog_data,'r.');
+hold on
+plot(1:length(sog_data),pred);
+plot(1:length(sog_data),(yci(:,1)),'k:');
+plot(1:length(sog_data),(yci(:,2)),'k:');
+xlabel('x');
+ylabel('y');
 
 %% Machine Learning model
-X_ML = X_gauss';
-figure; plotregression(sog_data', MyNet(X_ML));
+new_X_ML = new_X_gauss';
+figure; plotregression(new_sog_data', MyNet(new_X_ML));
