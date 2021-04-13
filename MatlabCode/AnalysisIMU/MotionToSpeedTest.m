@@ -161,6 +161,8 @@ for inputData = 1 : 1
         time = timestamp(i:3:i+N);
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01,'MinPeakHeight',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
+        
+        
 
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;

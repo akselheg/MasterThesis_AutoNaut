@@ -237,16 +237,15 @@ PlotLinear(test_sog_data,w1,X_test,'Vg')
 %% Gaussian Regression model
 X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
     WindSpeed_data WaveSize_data waveHz_data];
-Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52', 'Sigma', 0.047937);%, ...
-   % 'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-    %struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.047937, ...% );%, ...
+    'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+    struct('AcquisitionFunctionName','expected-improvement-plus'));
 %%
 X_gauss_test = [test_CurrentSpeed_data test_Currentdir_data ...
     test_WaveDir_data test_WindDir_data test_WindSpeed_data ...
     test_WaveSize_data test_waveHz_data];
 
 PlotGaus(test_sog_data, Mdl1, X_gauss_test,'Vg')
-
 [pred,~, yci] = predict(Mdl1, X_gauss_test);
 figure;
 plot(1:length(test_sog_data),test_sog_data,'r.');
@@ -259,7 +258,7 @@ ylabel('y');
 
 %% Machine Learning model
 X_ML = X_gauss';
-[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', 15);
+[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', 12);
 X_ML_test = X_gauss_test';
 figure; plotregression(sog_data', MyNet(X_ML));
 figure; plotregression(test_sog_data', MyNet(X_ML_test));

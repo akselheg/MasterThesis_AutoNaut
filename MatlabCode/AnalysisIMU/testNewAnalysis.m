@@ -114,6 +114,7 @@ for i= pad: n : length(GpsFix.sog) - pad
 
 end
 disp('done')
+% addpath '../AnalysisFiles'
 %% Linear Regression model
 new_X = [new_CurrentSpeed_data.*cos(deg2rad(new_Currentdir_data)) new_WaveDir_data  ...
    new_WindSpeed_data.*cos(deg2rad(new_WindDir_data))  new_WaveSize_data  new_waveHz_data ...
@@ -123,15 +124,15 @@ PlotLinear(new_sog_data,w1,new_X,'Vg')
 %% Gaussian Regression model
 new_X_gauss = [new_CurrentSpeed_data new_Currentdir_data new_WaveDir_data new_WindDir_data ...
     new_WindSpeed_data new_WaveSize_data new_waveHz_data];
-PlotGaus(sog_data, Mdl1, X_gauss,'Vg')
+PlotGaus(new_sog_data, Mdl1, new_X_gauss,'Vg')
 %%
-[pred,~, yci] = predict(Mdl1, X_gauss);
+[pred,~, yci] = predict(Mdl1, new_X_gauss);
 figure;
-plot(1:length(sog_data),sog_data,'r.');
+plot(1:length(new_sog_data),new_sog_data,'r.');
 hold on
-plot(1:length(sog_data),pred);
-plot(1:length(sog_data),(yci(:,1)),'k:');
-plot(1:length(sog_data),(yci(:,2)),'k:');
+plot(1:length(new_sog_data),pred);
+plot(1:length(new_sog_data),(yci(:,1)),'k:');
+plot(1:length(new_sog_data),(yci(:,2)),'k:');
 xlabel('x');
 ylabel('y');
 
