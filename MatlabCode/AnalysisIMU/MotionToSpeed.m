@@ -187,16 +187,16 @@ for inputData = 1 : 8
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
         heavefreq = cat(1,heavefreq,avg_freq_radians_per_second);
         heaveAmplitude = cat(1,heaveAmplitude, 2*sqrt(2)*rms(X - mean(X)));
-        figure;
-        plot(time, X);
-        hold on
-       
-        plot(locs, pks, 'pg', 'MarkerFaceColor','red','MarkerSize',15)
-        xlabel('Time [s]')
-        ylabel('Heave Displacement [m]', 'Interpreter','latex', 'FontSize', 11)
-        grid
-        pause;
-        close;
+%         figure;
+%         plot(time, X);
+%         hold on
+%        
+%         plot(locs, pks, 'pg', 'MarkerFaceColor','red','MarkerSize',15)
+%         xlabel('Time [s]')
+%         ylabel('Heave Displacement [m]', 'Interpreter','latex', 'FontSize', 11)
+%         grid
+%         pause;
+%         close;
         
 %         figure;
 %         plot(time, X);
@@ -266,29 +266,39 @@ figure;scatter(pitchAmplitudes,Sogs);
 %     rollAmplitudes  pitchAmplitudes  ...
 %     heavefreq  heaveamplitude];
 %MdlInput = [heavefreq heaveamplitude];
-MdlInput = [pitchRatesFreq rollRateFreq pitchRateAmplitudes rollRateAmplitudes heavefreq heaveAmplitude ];
+% MdlInput = [pitchRatesFreq rollRateFreq pitchRateAmplitudes rollRateAmplitudes heavefreq heaveAmplitude ...
+%     rollFreq  rollAmplitudes pitchFreq pitchAmplitudes];
+MdlInput = [pitchRateAmplitudes rollRateAmplitudes heavefreq heaveAmplitude ...
+      rollAmplitudes  pitchAmplitudes];
 %%
-Mdl1 = fitrgp(MdlInput, (Sogs), 'KernelFunction', 'matern52');
+Mdl1 = fitrgp(MdlInput, Sogs, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.072985);%, ...
+%     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%     struct('AcquisitionFunctionName','expected-improvement-plus'));
 %%
 PlotGaus(Sogs, Mdl1,MdlInput,'Vg')
-
 %%
-CorrData = [Sogs MdlInput rollFreq rollAmplitudes pitchFreq pitchAmplitudes];
-corrCoefs = corrcoef(CorrData);
-figure;
-% yvalues = {'Vg','pitchamplitudes',...
-%     'rollamplitudes',  'heaveamplitude'};
-% xvalues = {'Vg','pitchamplitudes',...
-%     'rollamplitudes',  'heaveamplitude'};
-yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-    'rollRateAmplitudes', 'heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
-    'pitchFreq', 'pitchAmplitudes'};
-xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-    'rollRateAmplitudes', ' heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
-    'pitchFreq', 'pitchAmplitudes'};
-h = heatmap(xvalues,yvalues,corrCoefs);
-h.Title = 'Correlation Matrix';
-%MotionToSpeedTest;
+X_ML = MdlInput';
+[MyNet, performance, e, tr] = neuralNet(X_ML,Sogs', 12);
+figure; plotregression(Sogs', MyNet(X_ML));
+
+% %%
+% CorrData = [Sogs MdlInput];
+% corrCoefs = corrcoef(CorrData);
+% figure;
+% % yvalues = {'Vg','pitchamplitudes',...
+% %     'rollamplitudes',  'heaveamplitude'};
+% % xvalues = {'Vg','pitchamplitudes',...
+% %     'rollamplitudes',  'heaveamplitude'};
+% yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+%     'rollRateAmplitudes', 'heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
+%     'pitchFreq', 'pitchAmplitudes'};
+% xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+%     'rollRateAmplitudes', ' heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
+%     'pitchFreq', 'pitchAmplitudes'};
+% h = heatmap(xvalues,yvalues,corrCoefs);
+% h.Title = 'Correlation Matrix';
+%%
+MotionToSpeedTest;
 
 
 

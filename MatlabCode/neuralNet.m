@@ -18,7 +18,7 @@ trainFcn = 'trainbr';
 
 % Create a Fitting Network
 hiddenLayerSize = nh;
-net = fitnet(hiddenLayerSize,trainFcn);
+net = fitnet([nh,nh],trainFcn);
 
 % Setup Division of Data for Training, Validation, Testing
 net.divideParam.trainRatio = 80/100;
