@@ -1,5 +1,5 @@
 %% Clear Workspace
-close all;
+%close all;
 addpath '..'
 addpath '../AnalysisFiles'
 
@@ -52,21 +52,22 @@ for inputData = 1 : 1
     
     SpeedOverGround = interp1(GpsFix.timestamp, GpsFix.sog, timestamp);
     HeaveEsttimator = Heave.value(Heave.src_ent==39);
-    HeaveEsttimator = smooth(HeaveEsttimator);
+    HeaveEsttimator = smooth(double(HeaveEsttimator));
     HeaveEst = interp1(Heave.timestamp-Heave.timestamp(1), HeaveEsttimator, timestamp);
-    roll = smooth(EulerAngles.phi);
+    roll = smooth(double(EulerAngles.phi));
     roll = interp1(EulerAngles.timestamp -EulerAngles.timestamp(1) , roll, timestamp);
-    pitch = smooth(EulerAngles.theta);
+    pitch = smooth(double(EulerAngles.theta));
     pitch = interp1(EulerAngles.timestamp - EulerAngles.timestamp(1), pitch, timestamp);
   
     
     M = 4000;
-    AngularVelocity.y = smooth(AngularVelocity.y);
-    AngularVelocity.x = smooth(AngularVelocity.x);
+    AngularVelocity.y = smooth(double(AngularVelocity.y));
+    AngularVelocity.x = smooth(double(AngularVelocity.x));
     for i = 10*N:N:length(AngularVelocity.y) - 10*N
-
-        X = (double(AngularVelocity.y(i:3:i+N)));
         time = timestamp(i:3:i+N);
+        
+        
+        X = smooth(double(AngularVelocity.y(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.04 ,'MinPeakDistance',0.1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -100,8 +101,7 @@ for inputData = 1 : 1
 %         [~,idx] = max(fitfun(w(1:M)));
 
         
-        X = (double(AngularVelocity.x(i:3:i+N)));
-        time = timestamp(i:3:i+N);
+        X = smooth(double(AngularVelocity.x(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.04 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -113,7 +113,6 @@ for inputData = 1 : 1
 
         
         X = smooth(double(roll(i:3:i+N)));
-        time = timestamp(i:3:i+N);
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -134,8 +133,7 @@ for inputData = 1 : 1
 %         close;
 
         
-        X = smooth(pitch(i:3:i+N));
-        time = timestamp(i:3:i+N);
+        X = smooth(double(pitch(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -161,9 +159,7 @@ for inputData = 1 : 1
 %         hold off
 %         %stop;
         
-        X = (double(HeaveEst(i:3:i+N)));
-        
-        time = timestamp(i:3:i+N);
+        X = smooth(double(HeaveEst(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakDistance',3);
         avg_periods_from_peaks = mean(diff(locs));
 %         plot(time,X)
@@ -246,6 +242,7 @@ MdlInput = [pitchRateAmplitudes rollRateAmplitudes heavefreq heaveAmplitude ...
 %%
 PlotGaus(Sogs, Mdl1,MdlInput,'Vg')
 
+%%
 X_ML = MdlInput';
 figure; plotregression(Sogs', MyNet(X_ML));
 

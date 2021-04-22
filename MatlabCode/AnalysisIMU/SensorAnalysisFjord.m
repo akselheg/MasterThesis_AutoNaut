@@ -221,7 +221,7 @@ Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52');
 X_gauss_test = [test_CurrentSpeed_data test_Currentdir_data ...
     test_WaveDir_data test_WindDir_data test_WindSpeed_data ...
     test_WaveSize_data test_waveHz_data];
-PlotGaus(test_sog_data, Mdl1, X_gauss_test,'Vg')
+PlotGaus(test_sog_data, Mdl1, X_gauss_test,'Vg');
 
 %% Machine Learning model
 X_ML = X_gauss';

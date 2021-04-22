@@ -67,21 +67,22 @@ for inputData = 1 : 8
     
     SpeedOverGround = interp1(GpsFix.timestamp, GpsFix.sog, timestamp);
     HeaveEsttimator = Heave.value(Heave.src_ent==39);
-    HeaveEsttimator = smooth(HeaveEsttimator);
+    HeaveEsttimator = smooth(double(HeaveEsttimator));
     HeaveEst = interp1(Heave.timestamp-Heave.timestamp(1), HeaveEsttimator, timestamp);
-    roll = smooth(EulerAngles.phi);
+    roll = smooth(double(EulerAngles.phi));
     roll = interp1(EulerAngles.timestamp -EulerAngles.timestamp(1) , roll, timestamp);
-    pitch = smooth(EulerAngles.theta);
+    pitch = smooth(double(EulerAngles.theta));
     pitch = interp1(EulerAngles.timestamp - EulerAngles.timestamp(1), pitch, timestamp);
   
     
     M = 4000;
-    AngularVelocity.y = smooth(AngularVelocity.y);
-    AngularVelocity.x = smooth(AngularVelocity.x);
+    AngularVelocity.y = smooth(double(AngularVelocity.y));
+    AngularVelocity.x = smooth(double(AngularVelocity.x));
     for i = 10*N:N:length(AngularVelocity.y) - 10*N
-
-        X = (double(AngularVelocity.y(i:3:i+N)));
         time = timestamp(i:3:i+N);
+
+        
+        X = smooth(double(AngularVelocity.y(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.04 ,'MinPeakDistance',0.1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -90,7 +91,7 @@ for inputData = 1 : 8
         
         
         pitchRatesFreq = cat(1,pitchRatesFreq,avg_freq_radians_per_second);
-        pitchRateAmplitudes = cat(1,pitchRateAmplitudes, 2*sqrt(2)*rms(X - mean(X)));
+        pitchRateAmplitudes = cat(1,pitchRateAmplitudes, sqrt(2)*rms(X - mean(X)));
         
         
         
@@ -115,20 +116,18 @@ for inputData = 1 : 8
 %         [~,idx] = max(fitfun(w(1:M)));
 
         
-        X = (double(AngularVelocity.x(i:3:i+N)));
-        time = timestamp(i:3:i+N);
+        X = smooth(double(AngularVelocity.x(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.04 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
         rollRateFreq = cat(1,rollRateFreq,avg_freq_radians_per_second);
-        rollRateAmplitudes = cat(1,rollRateAmplitudes, 2*sqrt(2)*rms(X - mean(X)));
+        rollRateAmplitudes = cat(1,rollRateAmplitudes, sqrt(2)*rms(X - mean(X)));
         
 
         
         X = smooth(double(roll(i:3:i+N)));
-        time = timestamp(i:3:i+N);
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -149,8 +148,7 @@ for inputData = 1 : 8
 %         close;
 
         
-        X = smooth(pitch(i:3:i+N));
-        time = timestamp(i:3:i+N);
+        X = smooth(double(pitch(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.01 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
 
@@ -176,9 +174,7 @@ for inputData = 1 : 8
 %         hold off
 %         %stop;
         
-        X = (double(HeaveEst(i:3:i+N)));
-        
-        time = timestamp(i:3:i+N);
+        X = smooth(double(HeaveEst(i:3:i+N)));
         [pks,locs] = findpeaks(X,time,'MinPeakProminence',0.1,'MinPeakDistance',3);
         avg_periods_from_peaks = mean(diff(locs));
 %         plot(time,X)
@@ -186,7 +182,7 @@ for inputData = 1 : 8
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
         heavefreq = cat(1,heavefreq,avg_freq_radians_per_second);
-        heaveAmplitude = cat(1,heaveAmplitude, 2*sqrt(2)*rms(X - mean(X)));
+        heaveAmplitude = cat(1,heaveAmplitude, sqrt(2)*rms(X - mean(X)));
 %         figure;
 %         plot(time, X);
 %         hold on
@@ -217,7 +213,7 @@ for inputData = 1 : 8
         
 %         hold off
 %         %stop;
-        Sogs = cat(1,Sogs, mean(SpeedOverGround(i:i+N)));
+        Sogs = cat(1,Sogs, mean(SpeedOverGround(i:3:i+N)));
         
 %         X = smooth(double(heaveDot(i:3:i+N)));
 %         time = timestamp(i:3:i+N);
@@ -253,6 +249,7 @@ figure;scatter(rollFreq,Sogs);
 figure;scatter(rollAmplitudes,Sogs);
 figure;scatter(pitchFreq,Sogs);
 figure;scatter(pitchAmplitudes,Sogs);
+
 % figure;scatter(heaveDotfreq,Sogs);
 % figure;scatter(heaveDotAmpl,Sogs);
 % figure;scatter(heaveeFreq,Sogs);
@@ -281,22 +278,22 @@ X_ML = MdlInput';
 [MyNet, performance, e, tr] = neuralNet(X_ML,Sogs', 12);
 figure; plotregression(Sogs', MyNet(X_ML));
 
-% %%
-% CorrData = [Sogs MdlInput];
-% corrCoefs = corrcoef(CorrData);
-% figure;
-% % yvalues = {'Vg','pitchamplitudes',...
-% %     'rollamplitudes',  'heaveamplitude'};
-% % xvalues = {'Vg','pitchamplitudes',...
-% %     'rollamplitudes',  'heaveamplitude'};
-% yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-%     'rollRateAmplitudes', 'heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
-%     'pitchFreq', 'pitchAmplitudes'};
-% xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
-%     'rollRateAmplitudes', ' heavefreq', 'heaveamplitude', 'rollFreq','rollAmplitudes',...
-%     'pitchFreq', 'pitchAmplitudes'};
-% h = heatmap(xvalues,yvalues,corrCoefs);
-% h.Title = 'Correlation Matrix';
+%%
+CorrData = [Sogs pitchRatesFreq rollRateFreq MdlInput rollFreq pitchFreq];
+corrCoefs = corrcoef(CorrData);
+figure;
+% yvalues = {'Vg','pitchamplitudes',...
+%     'rollamplitudes',  'heaveamplitude'};
+% xvalues = {'Vg','pitchamplitudes',...
+%     'rollamplitudes',  'heaveamplitude'};
+yvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+    'rollRateAmplitudes', 'heavefreq', 'heaveamplitude','rollAmplitudes',...
+     'pitchAmplitudes', 'rollFreq', 'pitchFreq'};
+xvalues = {'Vg','pitchRatesFreq','rollRateFreq','pitchRateAmplitudes',...
+    'rollRateAmplitudes', 'heavefreq', 'heaveamplitude','rollAmplitudes',...
+     'pitchAmplitudes', 'rollFreq', 'pitchFreq'};
+h = heatmap(xvalues,yvalues,corrCoefs);
+h.Title = 'Correlation Matrix';
 %%
 MotionToSpeedTest;
 
