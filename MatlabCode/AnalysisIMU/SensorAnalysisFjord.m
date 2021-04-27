@@ -64,6 +64,7 @@ for dataRun = 1:4
     load 'EulerAngles';
     rmpath(path);
     disp('done')
+    % RelativeWind,GpsFix,Heave,EulerAngles,AbsoluteWind
 
 
     %% Interpolation and correcting data

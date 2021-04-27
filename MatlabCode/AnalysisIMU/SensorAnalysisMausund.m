@@ -33,45 +33,83 @@ test_WindSpeed_data = [];
 test_WaveSize_data = [];
 test_waveHz_data = [];
 
-for dataRun = 1:8
+for dataRun = 1:13
     %% Data Loading
     disp('Loading Weather data data')
     if dataRun == 1
         path = '../Mausund200701_181204';
         load '../Weather/weatherData_2020-7-1_2020-7-2';
         load '../Weather/currentweatherData_2020-7-1_2020-7-3';
+        
     elseif dataRun == 2
         path = '../Mausund200701_221241';
-        load '../Weather/weatherData_2020-7-1_2020-7-2';
-        load '../Weather/currentweatherData_2020-7-1_2020-7-3';
+        %load '../Weather/weatherData_2020-7-1_2020-7-2';
+        %load '../Weather/currentweatherData_2020-7-1_2020-7-3';
     elseif dataRun == 3
         path = '../Mausund200703_062402';
         load '../Weather/weatherData_2020-7-3_2020-7-4';
         load '../Weather/currentweatherData_2020-7-3_2020-7-4';       
     elseif dataRun == 4
         path = '../Mausund200703_080820';
-        load '../Weather/weatherData_2020-7-3_2020-7-4';
-        load '../Weather/currentweatherData_2020-7-3_2020-7-4';     
-    elseif dataRun == 9
-        path = '../Mausund200703_132548';
-        load '../Weather/weatherData_2020-7-3_2020-7-4';
-        load '../Weather/currentweatherData_2020-7-3_2020-7-4';    
-    elseif dataRun == 6
+        %load '../Weather/weatherData_2020-7-3_2020-7-4';
+        %load '../Weather/currentweatherData_2020-7-3_2020-7-4';     
+ 
+    elseif dataRun == 5
         path = '../Mausund200703_215938';
-        load '../Weather/weatherData_2020-7-3_2020-7-4';
-        load '../Weather/currentweatherData_2020-7-3_2020-7-4'  
-    elseif dataRun == 7
+        %load '../Weather/weatherData_2020-7-3_2020-7-4';
+        %load '../Weather/currentweatherData_2020-7-3_2020-7-4'  
+    elseif dataRun == 6
         path = '../Mausund200705_120030';
         load '../Weather/weatherData_2020-7-5_2020-7-5';
         load '../Weather/currentweatherData_2020-7-5_2020-7-5' 
-    elseif dataRun == 8
+    elseif dataRun == 7
         path = '../Mausund200706_154608';
         load '../Weather/weatherData_2020-7-6_2020-7-6';
         load '../Weather/currentweatherData_2020-7-6_2020-7-6' 
-    elseif dataRun == 5
+    elseif dataRun == 8
         path = '../Mausund200709_53748';
         load '../Weather/weatherData_2020-7-9_2020-7-9';
         load '../Weather/currentweatherData_2020-7-9_2020-7-9' 
+    elseif dataRun == 9
+        path = '../Frohavet210312_100504';
+        load '../Weather/weatherData_2021-3-12_2021-3-13';
+        load '../Weather/currentweatherData_2021-3-12_2021-3-13'; 
+    elseif dataRun == 10
+        path = '../Frohavet210312_172709';
+%         load '../Weather/weatherData_2021-3-12_2021-3-13';
+%         load '../Weather/currentweatherData_2021-3-12_2021-3-13'; 
+        
+    elseif dataRun == 11
+        path = '../Frohavet210313_083148';
+        load '../Weather/weatherData_2021-3-13_2021-3-13';
+        load '../Weather/currentweatherData_2021-3-13_2021-3-13'; 
+        
+    elseif dataRun == 12
+        path = '../Frohavet210314_125306';
+        load '../Weather/weatherData_2021-3-14_2021-3-15';
+        load '../Weather/currentweatherData_2021-3-14_2021-3-15';
+    elseif dataRun == 13
+        path = '../Frohavet210314_204158';  
+%         load '../Weather/weatherData_2021-3-14_2021-3-15';
+%         load '../Weather/currentweatherData_2021-3-14_2021-3-15';
+
+
+
+
+%         
+%     elseif dataRun == 12
+%         path = '../Frohavet210401_080447';
+%         load '../Weather/weatherData_2021-4-1_2021-4-2';
+%         load '../Weather/currentweatherData_2021-4-1_2021-4-2'; 
+%     elseif dataRun == 13
+%         path = '../Frohavet210330_010622';
+%         load '../Weather/weatherData_2021-3-30_2021-3-30';
+%         load '../Weather/currentweatherData_2021-3-30_2021-3-30';  
+     
+    else
+        path = '../Mausund200703_132548';
+        load '../Weather/weatherData_2020-7-3_2020-7-4';
+        load '../Weather/currentweatherData_2020-7-3_2020-7-4';   
     end
     disp('done')
         
@@ -84,6 +122,7 @@ for dataRun = 1:8
     load 'EulerAngles';
     rmpath(path);
     disp('done')
+    % RelativeWind,GpsFix,Heave,EulerAngles,AbsoluteWind
 
 
     %% Interpolation and correcting data
@@ -94,10 +133,14 @@ for dataRun = 1:8
     AbsoluteWind.dir = interp1(AbsoluteWind.timestamp, ssa(AbsoluteWind.dir,'deg' ),GpsFix.timestamp);
     AbsoluteWind.speed = interp1(AbsoluteWind.timestamp, AbsoluteWind.speed,GpsFix.timestamp);
     AbsoluteWind.timestamp = interp1(AbsoluteWind.timestamp, AbsoluteWind.timestamp,GpsFix.timestamp);
-
-    HeaveValue = smooth(Heave.value(Heave.src_ent==39));
-    HeaveTime = Heave.timestamp(Heave.src_ent==39);
-
+    
+    if Heave.src_ent==45
+        HeaveValue = smooth(Heave.value(Heave.src_ent==45));
+        HeaveTime = Heave.timestamp(Heave.src_ent==45);
+    else
+        HeaveValue = smooth(Heave.value(Heave.src_ent==46));
+        HeaveTime = Heave.timestamp(Heave.src_ent==46);
+    end
     %% Set off more space 
     idx_offset = length(lon_data);
     test_idx_offset = length(test_lon_data);
@@ -165,7 +208,7 @@ for dataRun = 1:8
         % Wave approx 
         curHeave = HeaveValue(i:i+n);
         time = HeaveTime(i:i+n);
-        [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
+        [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1 ,'MinPeakDistance',1);
         avg_periods_from_peaks = mean(diff(locs));
         avg_freq_hz = 1./avg_periods_from_peaks;
         avg_freq_radians_per_second = 2*pi*avg_freq_hz;
@@ -237,9 +280,9 @@ PlotLinear(test_sog_data,w1,X_test,'Vg')
 %% Gaussian Regression model
 X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
     WindSpeed_data WaveSize_data waveHz_data];
-Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.047937, ...% );%, ...
-    'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-    struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.037317, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
 %%
 X_gauss_test = [test_CurrentSpeed_data test_Currentdir_data ...
     test_WaveDir_data test_WindDir_data test_WindSpeed_data ...
@@ -256,9 +299,48 @@ plot(1:length(test_sog_data),(yci(:,2)),'k:');
 xlabel('x');
 ylabel('y');
 
+%% Bootstrap
+My_indices = randperm(length(X_gauss));
+somen = floor(length(X_gauss)/5);
+X_gauss2 = X_gauss(My_indices(1:somen), :);
+X_gauss3 = X_gauss(My_indices(somen + 1: 2*somen), :);
+X_gauss4 = X_gauss(My_indices(2*somen + 1: 3*somen), :);
+X_gauss5 = X_gauss(My_indices(3*somen + 1: 4*somen), :);
+X_gauss6 = X_gauss(My_indices(4*somen + 1: end), :);
+sog_data2 = sog_data(My_indices(1:somen), :);
+sog_data3 = sog_data(My_indices(somen + 1: 2*somen), :);
+sog_data4 = sog_data(My_indices(2*somen + 1: 3*somen), :);
+sog_data5 = sog_data(My_indices(3*somen + 1: 4*somen), :);
+sog_data6 = sog_data(My_indices(4*somen + 1: end), :);
+Mdl2 = fitrgp(X_gauss2, sog_data2, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma',  0.039647);%, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl3 = fitrgp(X_gauss3, sog_data3, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.062457);%, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl4 = fitrgp(X_gauss4, sog_data4, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.062545);%, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl5 = fitrgp(X_gauss5, sog_data5, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.04399);%, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl6 = fitrgp(X_gauss6, sog_data6, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.051829);%, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+out2 = predict(Mdl2, X_gauss_test);
+out3 = predict(Mdl3, X_gauss_test);
+out4 = predict(Mdl4, X_gauss_test);
+out5 = predict(Mdl5, X_gauss_test);
+out6 = predict(Mdl6, X_gauss_test);
+bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+figure;
+plot(1:length(test_sog_data),test_sog_data,'r.');
+hold on
+plot(1:length(test_sog_data),bootOut);
+
 %% Machine Learning model
 X_ML = X_gauss';
-[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', 12);
+[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', [13]);
 X_ML_test = X_gauss_test';
 figure; plotregression(sog_data', MyNet(X_ML));
 figure; plotregression(test_sog_data', MyNet(X_ML_test));

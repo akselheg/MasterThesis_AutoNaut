@@ -41,8 +41,8 @@ AbsoluteWind.speed = interp1(AbsoluteWind.timestamp, AbsoluteWind.speed,GpsFix.t
 AbsoluteWind.timestamp = interp1(AbsoluteWind.timestamp, AbsoluteWind.timestamp,GpsFix.timestamp);
 
 
-HeaveValue = smooth(Heave.value(Heave.src_ent==39));
-HeaveTime = Heave.timestamp(Heave.src_ent==39);
+HeaveValue = smooth(Heave.value(Heave.src_ent==46));
+HeaveTime = Heave.timestamp(Heave.src_ent==46);
 
 %% Set off more space 
 idx_offset = length(new_lon_data);
@@ -94,7 +94,7 @@ for i= pad: n : length(GpsFix.sog) - pad
     % Wave approx 
     curHeave = HeaveValue(i:i+n);
     time = HeaveTime(i:i+n);
-    [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1,'MinPeakHeight',0.1 ,'MinPeakDistance',1);
+    [pks,locs] = findpeaks(curHeave,time,'MinPeakProminence',0.1,'MinPeakDistance',1);
     avg_periods_from_peaks = mean(diff(locs));
     avg_freq_hz = 1./avg_periods_from_peaks;
     avg_freq_radians_per_second = 2*pi*avg_freq_hz;
@@ -135,6 +135,18 @@ plot(1:length(new_sog_data),(yci(:,1)),'k:');
 plot(1:length(new_sog_data),(yci(:,2)),'k:');
 xlabel('x');
 ylabel('y');
+%%
+out2 = predict(Mdl2, new_X_gauss);
+out3 = predict(Mdl3, new_X_gauss);
+out4 = predict(Mdl4, new_X_gauss);
+out5 = predict(Mdl5, new_X_gauss);
+out6 = predict(Mdl6, new_X_gauss);
+bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+figure;
+plot(1:length(new_sog_data),new_sog_data,'r.');
+hold on
+plot(1:length(new_sog_data),bootOut);
+
 
 %% Machine Learning model
 new_X_ML = new_X_gauss';
