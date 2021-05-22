@@ -112,19 +112,20 @@ new_X = [new_WaveSize_data new_waveHz_data  abs(cos(rad2deg(new_WaveDir_data))) 
 %% Gaussian Regression model
 new_X_gauss = [new_CurrentSpeed_data new_Currentdir_data new_WaveDir_data new_WindDir_data ...
     new_WindSpeed_data new_WaveSize_data new_waveHz_data];
-PlotGaus(new_sog_data, Mdl1, new_X_gauss,'Vg')
+% PlotGaus(new_sog_data, Mdl1, new_X_gauss,'Vg')
 % PlotGaus(new_sog_data, Mdl7, new_X_gauss,'Vg')
 % PlotGaus(new_sog_data, Mdl8, new_X_gauss,'Vg')
 %
-[pred,~, yci] = predict(Mdl1, new_X_gauss);
-figure;
-plot(1:length(new_sog_data),new_sog_data,'r.');
-hold on
-plot(1:length(new_sog_data),pred);
-plot(1:length(new_sog_data),(yci(:,1)),'k:');
-plot(1:length(new_sog_data),(yci(:,2)),'k:');
-xlabel('x');
-ylabel('y');
+% [pred,~, yci] = predict(Mdl1, new_X_gauss);
+% figure;
+% plot(1:length(new_sog_data),new_sog_data,'r.');
+% hold on
+% plot(1:length(new_sog_data),pred);
+% plot(1:length(new_sog_data),(yci(:,1)),'k:');
+% plot(1:length(new_sog_data),(yci(:,2)),'k:');
+% xlabel('Sample');
+% ylabel('Vg');
+% legend('Actual speed', 'Predicted speed', '95% Confidence Intervall')
 
 %% Bootstrap aggregating
 [out2,~,yc2]= predict(Mdl2, new_X_gauss);
@@ -173,7 +174,7 @@ y1 = polyval(p,x1);
 plot(x1,y1)
 plot(x1,x1, 'k--')
 legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-tittel = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+tittel = join(['RMSE = ', num2str(sog_RMSE,4),  ',- R = ', num2str(sog_r,4)]);
 xlabel(join(['Actual ', string, ' [m/s]']))
 ylabel(join(['Predicted ', string, ' [m/s]']))
 title(tittel)
@@ -190,6 +191,9 @@ hold on
 plot(1:length(new_sog_data),bootOut);
 plot(1:length(new_sog_data),((yc2(:,1))+(yc3(:,1))+(yc4(:,1))+(yc5(:,1))+(yc6(:,1)))/5,'k:');
 plot(1:length(new_sog_data),((yc2(:,2))+(yc3(:,2))+(yc4(:,2))+(yc5(:,2))+(yc6(:,2)))/5,'k:');
+xlabel('Sample');
+ylabel('Vg');
+legend('Actual speed', 'Predicted speed', '95% Confidence Intervall')
 
 %% Machine Learning model
 % new_X_ML = new_X_gauss';

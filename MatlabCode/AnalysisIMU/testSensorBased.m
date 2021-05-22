@@ -136,74 +136,74 @@ hold on
 plot(1:length(new_sog_data),pred);
 plot(1:length(new_sog_data),(yci(:,1)),'k:');
 plot(1:length(new_sog_data),(yci(:,2)),'k:');
-xlabel('Timestamp');
+xlabel('Sample');
 ylabel('Vg');
 legend('Actual speed', 'Predicted speed', '95% Confidence Intervall')
-
-%% Bootstrap aggregating
-[out2,~,yc2]= predict(Mdl2, new_X_gauss);
-[out3,~,yc3 ]= predict(Mdl3, new_X_gauss);
-[out4 ,~,yc4 ]= predict(Mdl4, new_X_gauss);
-[out5 ,~,yc5 ]= predict(Mdl5, new_X_gauss);
-[out6,~,yc6 ]= predict(Mdl6, new_X_gauss);
-bootOut = (out2 + out3 + out4 + out5 + out6)/5;
-%% Stolen from Analysis file
-diff1 = [];
-sog_MSE = 0;
-
-mean_output = mean(bootOut);
-sog_summ1 = 0;
-sog_summ2 = 0;
-sog_summ3 = 0;
-for i = 1:length(new_sog_data)
-    out2 = predict(Mdl2, new_X_gauss(i,:));
-    out3 = predict(Mdl3, new_X_gauss(i,:));
-    out4 = predict(Mdl4, new_X_gauss(i,:));
-    out5 = predict(Mdl5, new_X_gauss(i,:));
-    out6 = predict(Mdl6, new_X_gauss(i,:));
-    out = (out2 + out3 + out4 + out5 + out6)/5;
-    sog_summ1 = sog_summ1 + (out-mean_output)*(new_sog_data(i) - mean(new_sog_data));
-    sog_summ2 = sog_summ2 + (out-mean_output)^2;
-    sog_summ3 = sog_summ3 + (new_sog_data(i) - mean(new_sog_data))^2;
-    diff1 = cat(1,diff1, out - new_sog_data(i));
-    sog_MSE = sog_MSE + (new_sog_data(i) - out)^2;
-end
-sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
-sog_RMSE = sqrt(sog_MSE/length(new_sog_data));
-figure;
-scatter(linspace(1,1,length(diff1)),diff1)
-hold on
-boxplot(diff1)
-tittel  = join(['Error between guessed ', 'Vg',  ' and actual ', 'Vg']);
-title(tittel)
-hold off
-%%
-figure;
-scatter(new_sog_data, bootOut) 
-hold on
-[p] = polyfit(new_sog_data,bootOut,1);
-x1 = linspace(min(new_sog_data),max(new_sog_data), length(new_sog_data));
-y1 = polyval(p,x1);
-plot(x1,y1)
-plot(x1,x1, 'k--')
-legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
-tittel = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
-xlabel(join(['Actual ', string, ' [m/s]']))
-ylabel(join(['Predicted ', string, ' [m/s]']))
-title(tittel)
-
-out2 = predict(Mdl2, new_X_gauss);
-out3 = predict(Mdl3, new_X_gauss);
-out4 = predict(Mdl4, new_X_gauss);
-out5 = predict(Mdl5, new_X_gauss);
-out6 = predict(Mdl6, new_X_gauss);
-bootOut = (out2 + out3 + out4 + out5 + out6)/5;
-figure;
-plot(1:length(new_sog_data),new_sog_data,'r.');
-hold on
-plot(1:length(new_sog_data),bootOut);
-plot(1:length(new_sog_data),((yc2(:,1))+(yc3(:,1))+(yc4(:,1))+(yc5(:,1))+(yc6(:,1)))/5,'k:');
-plot(1:length(new_sog_data),((yc2(:,2))+(yc3(:,2))+(yc4(:,2))+(yc5(:,2))+(yc6(:,2)))/5,'k:');
+% 
+% %% Bootstrap aggregating
+% [out2,~,yc2]= predict(Mdl2, new_X_gauss);
+% [out3,~,yc3 ]= predict(Mdl3, new_X_gauss);
+% [out4 ,~,yc4 ]= predict(Mdl4, new_X_gauss);
+% [out5 ,~,yc5 ]= predict(Mdl5, new_X_gauss);
+% [out6,~,yc6 ]= predict(Mdl6, new_X_gauss);
+% bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+% %% Stolen from Analysis file
+% diff1 = [];
+% sog_MSE = 0;
+% 
+% mean_output = mean(bootOut);
+% sog_summ1 = 0;
+% sog_summ2 = 0;
+% sog_summ3 = 0;
+% for i = 1:length(new_sog_data)
+%     out2 = predict(Mdl2, new_X_gauss(i,:));
+%     out3 = predict(Mdl3, new_X_gauss(i,:));
+%     out4 = predict(Mdl4, new_X_gauss(i,:));
+%     out5 = predict(Mdl5, new_X_gauss(i,:));
+%     out6 = predict(Mdl6, new_X_gauss(i,:));
+%     out = (out2 + out3 + out4 + out5 + out6)/5;
+%     sog_summ1 = sog_summ1 + (out-mean_output)*(new_sog_data(i) - mean(new_sog_data));
+%     sog_summ2 = sog_summ2 + (out-mean_output)^2;
+%     sog_summ3 = sog_summ3 + (new_sog_data(i) - mean(new_sog_data))^2;
+%     diff1 = cat(1,diff1, out - new_sog_data(i));
+%     sog_MSE = sog_MSE + (new_sog_data(i) - out)^2;
+% end
+% sog_r = sog_summ1/sqrt(sog_summ2*sog_summ3);
+% sog_RMSE = sqrt(sog_MSE/length(new_sog_data));
+% figure;
+% scatter(linspace(1,1,length(diff1)),diff1)
+% hold on
+% boxplot(diff1)
+% tittel  = join(['Error between guessed ', 'Vg',  ' and actual ', 'Vg']);
+% title(tittel)
+% hold off
+% %%
+% figure;
+% scatter(new_sog_data, bootOut) 
+% hold on
+% [p] = polyfit(new_sog_data,bootOut,1);
+% x1 = linspace(min(new_sog_data),max(new_sog_data), length(new_sog_data));
+% y1 = polyval(p,x1);
+% plot(x1,y1)
+% plot(x1,x1, 'k--')
+% legend('Data',' Fit', 'Y = T', 'Location', 'NorthWest')
+% tittel = join(['RMSE = ', num2str(sog_RMSE,4),  ', R = ', num2str(sog_r,4)]);
+% xlabel(join(['Actual ', string, ' [m/s]']))
+% ylabel(join(['Predicted ', string, ' [m/s]']))
+% title(tittel)
+% 
+% out2 = predict(Mdl2, new_X_gauss);
+% out3 = predict(Mdl3, new_X_gauss);
+% out4 = predict(Mdl4, new_X_gauss);
+% out5 = predict(Mdl5, new_X_gauss);
+% out6 = predict(Mdl6, new_X_gauss);
+% bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+% figure;
+% plot(1:length(new_sog_data),new_sog_data,'r.');
+% hold on
+% plot(1:length(new_sog_data),bootOut);
+% plot(1:length(new_sog_data),((yc2(:,1))+(yc3(:,1))+(yc4(:,1))+(yc5(:,1))+(yc6(:,1)))/5,'k:');
+% plot(1:length(new_sog_data),((yc2(:,2))+(yc3(:,2))+(yc4(:,2))+(yc5(:,2))+(yc6(:,2)))/5,'k:');
 
 %% Machine Learning model
 % new_X_ML = new_X_gauss';

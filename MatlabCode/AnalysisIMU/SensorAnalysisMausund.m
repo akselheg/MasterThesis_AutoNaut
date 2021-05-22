@@ -256,6 +256,7 @@ X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
 Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.037317, ...% );%, ...
      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
      struct('AcquisitionFunctionName','expected-improvement-plus'));
+ testSensorBased;
 %%
 X_gauss_test = [test_CurrentSpeed_data test_Currentdir_data ...
     test_WaveDir_data test_WindDir_data test_WindSpeed_data ...
@@ -272,62 +273,63 @@ plot(1:length(test_sog_data),(yci(:,2)),'k:');
 xlabel('x');
 ylabel('y');
 
-% %% Bootstrap
-% My_indices = randperm(length(X_gauss));
-% somen = floor(length(X_gauss)/5);
-% X_gauss2 = X_gauss(My_indices(1:somen), :);
-% X_gauss3 = X_gauss(My_indices(somen + 1: 2*somen), :);
-% X_gauss4 = X_gauss(My_indices(2*somen + 1: 3*somen), :);
-% X_gauss5 = X_gauss(My_indices(3*somen + 1: 4*somen), :);
-% X_gauss6 = X_gauss(My_indices(4*somen + 1: end), :);
-% sog_data2 = sog_data(My_indices(1:somen), :);
-% sog_data3 = sog_data(My_indices(somen + 1: 2*somen), :);
-% sog_data4 = sog_data(My_indices(2*somen + 1: 3*somen), :);
-% sog_data5 = sog_data(My_indices(3*somen + 1: 4*somen), :);
-% sog_data6 = sog_data(My_indices(4*somen + 1: end), :);
-% Mdl2 = fitrgp(X_gauss2, sog_data2, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma',  0.039647, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-% Mdl3 = fitrgp(X_gauss3, sog_data3, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062457, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-% Mdl4 = fitrgp(X_gauss4, sog_data4, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062545, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-% Mdl5 = fitrgp(X_gauss5, sog_data5, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.04399, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-% Mdl6 = fitrgp(X_gauss6, sog_data6, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-%  Mdl7 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardmatern32','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-%  Mdl8 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardsquaredexponential','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
-%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
-%      struct('AcquisitionFunctionName','expected-improvement-plus'));
-%testForecastBased;
-% %%
-% out2 = predict(Mdl2, X_gauss_test);
-% out3 = predict(Mdl3, X_gauss_test);
-% out4 = predict(Mdl4, X_gauss_test);
-% out5 = predict(Mdl5, X_gauss_test);
-% out6 = predict(Mdl6, X_gauss_test);
-% bootOut = (out2 + out3 + out4 + out5 + out6)/5;
-% figure;
-% plot(1:length(test_sog_data),test_sog_data,'r.');
-% hold on
-% plot(1:length(test_sog_data),bootOut);
-% 
-% % %% Machine Learning model
-% % X_ML = X_gauss';
-% % [MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', [13]);
-% % X_ML_test = X_gauss_test';
-% % figure; plotregression(sog_data', MyNet(X_ML));
-% % figure; plotregression(test_sog_data', MyNet(X_ML_test));
+%% Bootstrap
+My_indices = randperm(length(X_gauss));
+somen = floor(length(X_gauss)/5);
+X_gauss2 = X_gauss(My_indices(1:somen), :);
+X_gauss3 = X_gauss(My_indices(somen + 1: 2*somen), :);
+X_gauss4 = X_gauss(My_indices(2*somen + 1: 3*somen), :);
+X_gauss5 = X_gauss(My_indices(3*somen + 1: 4*somen), :);
+X_gauss6 = X_gauss(My_indices(4*somen + 1: end), :);
+sog_data2 = sog_data(My_indices(1:somen), :);
+sog_data3 = sog_data(My_indices(somen + 1: 2*somen), :);
+sog_data4 = sog_data(My_indices(2*somen + 1: 3*somen), :);
+sog_data5 = sog_data(My_indices(3*somen + 1: 4*somen), :);
+sog_data6 = sog_data(My_indices(4*somen + 1: end), :);
+Mdl2 = fitrgp(X_gauss2, sog_data2, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma',  0.039647, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl3 = fitrgp(X_gauss3, sog_data3, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062457, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl4 = fitrgp(X_gauss4, sog_data4, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062545, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl5 = fitrgp(X_gauss5, sog_data5, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.04399, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl6 = fitrgp(X_gauss6, sog_data6, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+
+Mdl7 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardmatern32','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+Mdl8 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardsquaredexponential','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
+     'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+     struct('AcquisitionFunctionName','expected-improvement-plus'));
+
+%%
+out2 = predict(Mdl2, X_gauss_test);
+out3 = predict(Mdl3, X_gauss_test);
+out4 = predict(Mdl4, X_gauss_test);
+out5 = predict(Mdl5, X_gauss_test);
+out6 = predict(Mdl6, X_gauss_test);
+bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+figure;
+plot(1:length(test_sog_data),test_sog_data,'r.');
+hold on
+plot(1:length(test_sog_data),bootOut);
+
+% %% Machine Learning model
+% X_ML = X_gauss';
+% [MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', [13]);
+% X_ML_test = X_gauss_test';
+% figure; plotregression(sog_data', MyNet(X_ML));
+% figure; plotregression(test_sog_data', MyNet(X_ML_test));
 
 %% Run Testscript
-%testForecastBased;
+testForecastBased;
 testSensorBased;
 
 %% Clearing and ending script
