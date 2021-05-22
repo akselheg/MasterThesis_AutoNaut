@@ -6,7 +6,7 @@ addpath '../AnalysisFiles'
 
 %% Constants
 fs = 2;
-n = 3*60*fs;
+n = 6*60*fs;
 pad = 15*60*fs;
 first = true;
 
@@ -43,21 +43,14 @@ for dataRun = 1:13
         
     elseif dataRun == 2
         path = '../Mausund200701_221241';
-        %load '../Weather/weatherData_2020-7-1_2020-7-2';
-        %load '../Weather/currentweatherData_2020-7-1_2020-7-3';
     elseif dataRun == 3
         path = '../Mausund200703_062402';
         load '../Weather/weatherData_2020-7-3_2020-7-4';
         load '../Weather/currentweatherData_2020-7-3_2020-7-4';       
     elseif dataRun == 4
-        path = '../Mausund200703_080820';
-        %load '../Weather/weatherData_2020-7-3_2020-7-4';
-        %load '../Weather/currentweatherData_2020-7-3_2020-7-4';     
- 
+        path = '../Mausund200703_080820';   
     elseif dataRun == 5
         path = '../Mausund200703_215938';
-        %load '../Weather/weatherData_2020-7-3_2020-7-4';
-        %load '../Weather/currentweatherData_2020-7-3_2020-7-4'  
     elseif dataRun == 6
         path = '../Mausund200705_120030';
         load '../Weather/weatherData_2020-7-5_2020-7-5';
@@ -76,9 +69,6 @@ for dataRun = 1:13
         load '../Weather/currentweatherData_2021-3-12_2021-3-13'; 
     elseif dataRun == 10
         path = '../Frohavet210312_172709';
-%         load '../Weather/weatherData_2021-3-12_2021-3-13';
-%         load '../Weather/currentweatherData_2021-3-12_2021-3-13'; 
-        
     elseif dataRun == 11
         path = '../Frohavet210313_083148';
         load '../Weather/weatherData_2021-3-13_2021-3-13';
@@ -90,22 +80,6 @@ for dataRun = 1:13
         load '../Weather/currentweatherData_2021-3-14_2021-3-15';
     elseif dataRun == 13
         path = '../Frohavet210314_204158';  
-%         load '../Weather/weatherData_2021-3-14_2021-3-15';
-%         load '../Weather/currentweatherData_2021-3-14_2021-3-15';
-
-
-
-
-%         
-%     elseif dataRun == 12
-%         path = '../Frohavet210401_080447';
-%         load '../Weather/weatherData_2021-4-1_2021-4-2';
-%         load '../Weather/currentweatherData_2021-4-1_2021-4-2'; 
-%     elseif dataRun == 13
-%         path = '../Frohavet210330_010622';
-%         load '../Weather/weatherData_2021-3-30_2021-3-30';
-%         load '../Weather/currentweatherData_2021-3-30_2021-3-30';  
-     
     else
         path = '../Mausund200703_132548';
         load '../Weather/weatherData_2020-7-3_2020-7-4';
@@ -168,14 +142,18 @@ for dataRun = 1:13
     test_WindSpeed_data = cat(1, test_WindSpeed_data, zeros(test_newPadding, 1));
     test_WaveSize_data = cat(1, test_WaveSize_data, zeros(test_newPadding, 1));
     test_waveHz_data = cat(1, test_waveHz_data, zeros(test_newPadding, 1));
-
+    if  strcmp(path,'../Mausund200701_221241/')
+        offff = 100;
+    else
+        offff = 15;
+    end
 
     %% Main loop
     idx = 1;
     test_idx = 1;
     testingdata = 1;
     disp('Start Going through data')
-    for i= pad: n : length(GpsFix.sog) - pad
+    for i= pad: n : length(GpsFix.sog) - (120*offff)
         curr_hour = floor(double(GpsFix.utc_time(i))/3600) ...
             + 24*(double(GpsFix.utc_day(i)-GpsFix.utc_day(1)));
 
@@ -257,30 +235,25 @@ figure;scatter(WaveSize_data, sog_data); ylabel 'Sog';xlabel 'wave size';
 figure;scatter(waveHz_data, sog_data); ylabel 'Sog';xlabel 'wave Hz';
 
 % Heatmap
-X = [CurrentSpeed_data.*cos(deg2rad(Currentdir_data)) WaveDir_data  ...
-   WindSpeed_data.*cos(deg2rad(WindDir_data))  WaveSize_data  waveHz_data ...
+X = [WaveSize_data waveHz_data  abs(cos(deg2rad(WaveDir_data)))  ...
+   WindSpeed_data.*cos(deg2rad(WindDir_data)) CurrentSpeed_data.*cos(deg2rad(Currentdir_data)) ...
    ones(length(sog_data),1)];
 CorrData = [sog_data X(:, 1:end-1)];
 corrCoefs = corrcoef(CorrData);
 
-figure;
-labels = {'Vg','CurrentSpeedsurge','WaveDir',...
-    'WindSpeedSurge', 'WaveSize', 'waveHz'};
-h = heatmap(labels,labels,corrCoefs);
-h.Title = 'Correlation Matrix';
-
+PlotHeat(corrCoefs,'Vg');
 
 w1 = (X'*X)\(X'*sog_data);
 
-X_test = [test_CurrentSpeed_data.*cos(deg2rad(test_Currentdir_data)) test_WaveDir_data  ...
-   test_WindSpeed_data.*cos(deg2rad(test_WindDir_data)) test_WaveSize_data  test_waveHz_data ...
+X_test = [test_WaveSize_data test_waveHz_data  abs(cos(deg2rad(test_WaveDir_data)))  ...
+   test_WindSpeed_data.*cos(deg2rad(test_WindDir_data)) test_CurrentSpeed_data.*cos(deg2rad(test_Currentdir_data)) ...
    ones(length(test_sog_data),1)];
 PlotLinear(test_sog_data,w1,X_test,'Vg')
 
 %% Gaussian Regression model
 X_gauss = [CurrentSpeed_data Currentdir_data WaveDir_data WindDir_data ...
     WindSpeed_data WaveSize_data waveHz_data];
-Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.037317, ...% );%, ...
+Mdl1 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.037317, ...% );%, ...
      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
      struct('AcquisitionFunctionName','expected-improvement-plus'));
 %%
@@ -299,54 +272,63 @@ plot(1:length(test_sog_data),(yci(:,2)),'k:');
 xlabel('x');
 ylabel('y');
 
-%% Bootstrap
-My_indices = randperm(length(X_gauss));
-somen = floor(length(X_gauss)/5);
-X_gauss2 = X_gauss(My_indices(1:somen), :);
-X_gauss3 = X_gauss(My_indices(somen + 1: 2*somen), :);
-X_gauss4 = X_gauss(My_indices(2*somen + 1: 3*somen), :);
-X_gauss5 = X_gauss(My_indices(3*somen + 1: 4*somen), :);
-X_gauss6 = X_gauss(My_indices(4*somen + 1: end), :);
-sog_data2 = sog_data(My_indices(1:somen), :);
-sog_data3 = sog_data(My_indices(somen + 1: 2*somen), :);
-sog_data4 = sog_data(My_indices(2*somen + 1: 3*somen), :);
-sog_data5 = sog_data(My_indices(3*somen + 1: 4*somen), :);
-sog_data6 = sog_data(My_indices(4*somen + 1: end), :);
-Mdl2 = fitrgp(X_gauss2, sog_data2, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma',  0.039647);%, ...% );%, ...
+% %% Bootstrap
+% My_indices = randperm(length(X_gauss));
+% somen = floor(length(X_gauss)/5);
+% X_gauss2 = X_gauss(My_indices(1:somen), :);
+% X_gauss3 = X_gauss(My_indices(somen + 1: 2*somen), :);
+% X_gauss4 = X_gauss(My_indices(2*somen + 1: 3*somen), :);
+% X_gauss5 = X_gauss(My_indices(3*somen + 1: 4*somen), :);
+% X_gauss6 = X_gauss(My_indices(4*somen + 1: end), :);
+% sog_data2 = sog_data(My_indices(1:somen), :);
+% sog_data3 = sog_data(My_indices(somen + 1: 2*somen), :);
+% sog_data4 = sog_data(My_indices(2*somen + 1: 3*somen), :);
+% sog_data5 = sog_data(My_indices(3*somen + 1: 4*somen), :);
+% sog_data6 = sog_data(My_indices(4*somen + 1: end), :);
+% Mdl2 = fitrgp(X_gauss2, sog_data2, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma',  0.039647, ...% );%, ...
 %      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
 %      struct('AcquisitionFunctionName','expected-improvement-plus'));
-Mdl3 = fitrgp(X_gauss3, sog_data3, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.062457);%, ...% );%, ...
+% Mdl3 = fitrgp(X_gauss3, sog_data3, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062457, ...% );%, ...
 %      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
 %      struct('AcquisitionFunctionName','expected-improvement-plus'));
-Mdl4 = fitrgp(X_gauss4, sog_data4, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.062545);%, ...% );%, ...
+% Mdl4 = fitrgp(X_gauss4, sog_data4, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.062545, ...% );%, ...
 %      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
 %      struct('AcquisitionFunctionName','expected-improvement-plus'));
-Mdl5 = fitrgp(X_gauss5, sog_data5, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.04399);%, ...% );%, ...
+% Mdl5 = fitrgp(X_gauss5, sog_data5, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.04399, ...% );%, ...
 %      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
 %      struct('AcquisitionFunctionName','expected-improvement-plus'));
-Mdl6 = fitrgp(X_gauss6, sog_data6, 'KernelFunction', 'matern52','BasisFunction', 'linear','Sigma', 0.051829);%, ...% );%, ...
+% Mdl6 = fitrgp(X_gauss6, sog_data6, 'KernelFunction', 'ardmatern52','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
 %      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
 %      struct('AcquisitionFunctionName','expected-improvement-plus'));
-out2 = predict(Mdl2, X_gauss_test);
-out3 = predict(Mdl3, X_gauss_test);
-out4 = predict(Mdl4, X_gauss_test);
-out5 = predict(Mdl5, X_gauss_test);
-out6 = predict(Mdl6, X_gauss_test);
-bootOut = (out2 + out3 + out4 + out5 + out6)/5;
-figure;
-plot(1:length(test_sog_data),test_sog_data,'r.');
-hold on
-plot(1:length(test_sog_data),bootOut);
-
-%% Machine Learning model
-X_ML = X_gauss';
-[MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', [13]);
-X_ML_test = X_gauss_test';
-figure; plotregression(sog_data', MyNet(X_ML));
-figure; plotregression(test_sog_data', MyNet(X_ML_test));
+%  Mdl7 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardmatern32','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+%  Mdl8 = fitrgp(X_gauss, sog_data, 'KernelFunction', 'ardsquaredexponential','BasisFunction', 'linear','Sigma', 0.051829, ...% );%, ...
+%      'OptimizeHyperparameters' ,'auto', 'HyperparameterOptimizationOptions',...
+%      struct('AcquisitionFunctionName','expected-improvement-plus'));
+%testForecastBased;
+% %%
+% out2 = predict(Mdl2, X_gauss_test);
+% out3 = predict(Mdl3, X_gauss_test);
+% out4 = predict(Mdl4, X_gauss_test);
+% out5 = predict(Mdl5, X_gauss_test);
+% out6 = predict(Mdl6, X_gauss_test);
+% bootOut = (out2 + out3 + out4 + out5 + out6)/5;
+% figure;
+% plot(1:length(test_sog_data),test_sog_data,'r.');
+% hold on
+% plot(1:length(test_sog_data),bootOut);
+% 
+% % %% Machine Learning model
+% % X_ML = X_gauss';
+% % [MyNet, performance, e, tr] = neuralNet(X_ML,sog_data', [13]);
+% % X_ML_test = X_gauss_test';
+% % figure; plotregression(sog_data', MyNet(X_ML));
+% % figure; plotregression(test_sog_data', MyNet(X_ML_test));
 
 %% Run Testscript
-testNewAnalysis;
+%testForecastBased;
+testSensorBased;
 
 %% Clearing and ending script
 rmpath '../AnalysisFiles'
