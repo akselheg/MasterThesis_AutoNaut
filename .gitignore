@@ -1,11 +1,3 @@
 *.m~
 *Weather/
 *plots/
-*.csv
-*Acceleration.mat
-*AngularVelocity.mat
-*.mat
-!*w1.mat
-!*speedEst.mat
-!*speedEst2.mat
-*Mausund*
