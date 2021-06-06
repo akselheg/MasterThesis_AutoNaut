@@ -5,10 +5,10 @@ clearvars; close all; clc;
 load('../Mausund200703_132548/GpsFix.mat')
 
 %% Set start and goal positions and number of waypoints between
-startLat = rad2deg(GpsFix.lat(1));
-endLat = rad2deg(GpsFix.lat(end));
-startLon = rad2deg(GpsFix.lon(1));
-endLon = rad2deg(GpsFix.lon(end));
+startLat = rad2deg(GpsFix.lat(120*15));
+endLat = rad2deg(GpsFix.lat(end-120*15));
+startLon = rad2deg(GpsFix.lon(120*15));
+endLon = rad2deg(GpsFix.lon(end-120*15));
 nWaypoints = 15;
 save('Waypoints.mat','startLat','endLat','startLon','endLon');
 
@@ -48,7 +48,7 @@ for i =  1:4 % Running 4 itterations to obtain best solution.
     x = particleswarm(@costFunc,2*(nWaypoints),[latmin-l*ones(1,(nWaypoints)) lonmin-l*ones(1,(nWaypoints))],...
         [latmax+l*ones(1,(nWaypoints)) lonmax+l*ones(1,(nWaypoints))], option);
     
-    act = GpsFix.utc_time(end) - GpsFix.utc_time(1);
+    act = GpsFix.utc_time(end-120*15) - GpsFix.utc_time(120*15);
     
     Optimal = costFunc(x);
     if Optimal < best

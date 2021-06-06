@@ -61,10 +61,19 @@ function elapseTime = costFunc(x)
         
         if ~ (isnan(cWaveSize(1)) || isnan(cCurrentEast(1)))
             Vc = [cCurrentNorth; cCurrentEast];
-            VcDir = atan2( Vc(2), Vc(1));
-            X = [cWaveSize cWaveHz abs(cos(deg2rad(cWaveDir)))  cWindSpeed*cos(cWindDir)  ...
-                 norm(Vc)* cos(ssa(angle - VcDir)) 1];
-            speed = w1'*X';
+            VcDir = atan2d( Vc(2), Vc(1));
+            
+            X = [norm(Vc) ssa(rad2deg(angle) - VcDir,'deg') cWaveDir cWindDir ...
+                     cWindSpeed cWaveSize cWaveHz];
+            out2 = predict(Mdl2, X);
+            out3 = predict(Mdl3, X);
+            out4 = predict(Mdl4, X);
+            out5 = predict(Mdl5, X);
+            out6 = predict(Mdl6, X);
+            speed = (out2 + out3 + out4 + out5 + out6)/5;
+%             X = [cWaveSize cWaveHz abs(cos(deg2rad(cWaveDir)))  cWindSpeed*cos(cWindDir)  ...
+%                 norm(Vc)* cos(ssa(angle - deg2rad(VcDir))) 1];
+%             speed = w1'*X';
         else
             disp('Not good')
         end

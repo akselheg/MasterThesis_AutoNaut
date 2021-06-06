@@ -72,7 +72,7 @@ for i= pad: n : length(GpsFix.sog) - pad
     VcDir = atan2d( Vc(2), Vc(1));
 
     % Wind data
-    WindDir = ssa(windDir(x,y,curr_hour + 1),'deg');
+    WindDir = ssa(windDir(x,y,curr_hour + 1) - psi,'deg');
     WindSpeed = windSpeed(x,y,curr_hour + 1);
 
     % Wave approx 
